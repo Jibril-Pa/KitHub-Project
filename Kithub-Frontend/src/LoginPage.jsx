@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './loginPage.css'
+import { redirect} from 'react-router-dom';
+import './LoginPage.css'
 export default function LoginPage(){
     const [userName,setuserName] = useState('');
     const [password,setPassword] = useState('');

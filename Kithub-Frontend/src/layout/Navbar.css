@@ -1,0 +1,55 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 24px 36px;
+    background-color: #B99382;
+    color: #f5eee5;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  
+  .navbar-left,
+  .navbar-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Center wrapper takes no extra space */
+  .navbar-center {
+    flex: 0 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0; /* important for shrinking text */
+  }
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 18px;
+    width: 24px;
+    cursor: pointer;
+  }
+  
+  .bar {
+    width: 100%;
+    height: 3px;
+    background-color: #f5eee5;
+    border-radius: 2px;
+  }
+  .navbar-title {
+    font-family: monospace;
+    font-size: clamp(1.25rem, 5vw, 2.25rem);
+    font-weight: bold;
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
