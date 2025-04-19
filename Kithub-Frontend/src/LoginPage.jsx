@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './loginPage.css'
 export default function LoginPage(){
     const [userName,setuserName] = useState('');
@@ -16,7 +17,11 @@ export default function LoginPage(){
         event.preventDefault();
         console.log('Username:', userName);
         console.log('Password:', password);
-
+        if(userName && password){
+            redirect('/home');
+        }
+        setuserName('');
+        setPassword('');
     };
     
     return (
@@ -40,7 +45,7 @@ export default function LoginPage(){
                     value={password}
                     /> 
                   </div>
-                <button type="submit" onClick={handleLogin}>Login</button>
+                <button type="submit">Login</button>
             </form>
         </div>
     );

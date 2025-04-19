@@ -6,10 +6,10 @@ body {
     background-color: #f7f4e6; /* Cream background for the entire page */
     font-family: Arial, sans-serif; /* Default font */
     display: flex;
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
-
 /* Heading */
 h2 {
     font-family: 'Lato', sans-serif;
