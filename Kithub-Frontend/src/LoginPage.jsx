@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './loginPage.css'
-function loginPage(){
+export default function LoginPage(){
     const [userName,setuserName] = useState('');
     const [password,setPassword] = useState('');
 
@@ -18,7 +18,7 @@ function loginPage(){
         console.log('Password:', password);
 
     };
-
+    
     return (
         <div className ="login-form">
             <h2>Welcome to KitHub</h2>
@@ -40,9 +40,8 @@ function loginPage(){
                     value={password}
                     /> 
                   </div>
-                <button type="submit">Login</button>
+                <button type="submit" onClick={handleLogin}>Login</button>
             </form>
         </div>
     );
 }
-export default loginPage;
