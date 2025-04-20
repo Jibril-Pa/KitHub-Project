@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Full viewport height */
+    background-color: #f7f4e6; /* Cream background for the entire page */
+    font-family: Arial, sans-serif; /* Default font */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+/* Heading */
+h2 {
+    font-family: 'Lato', sans-serif;
+    color: #3f2c1f;
+    font-size: 32px; /* Increased font for heading */
+    margin-bottom: 15px; /* More space below heading */
+}
+
+/* Form styling */
+.login-form {
+    background-color: #f0ebd4 !important; /* White background for form */
+    padding: 40px; /* Larger padding to give more space inside the form */
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Larger shadow for more depth */
+    width: 100%; /* Full width of container */
+    max-width: 800px; /* Max width of the form */
+    min-width: 400px; /* Minimum width of the form */
+    height: auto; /* Adjust height to fit content */
+    display: flex;
+    flex-direction: column; /* Stack form elements vertically */
+    gap: 25px; /* Increased gap between elements */
+    box-sizing: border-box; /* Ensure padding is inside the form */
+}
+
+/* Input styling */
+input {
+    background-color: #cec8ad !important;
+    padding: 20px; /* Larger padding for the inputs */
+    font-size: 20px; /* Larger font size for the input text */
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Rounded corners */
+    width: 100%; /* Make inputs full width */
+    box-sizing: border-box; /* Prevents breaking the layout */
+    margin-bottom: 5px;
+    margin-top: 0px;
+}
+
+/* Focus styling for inputs */
+input:focus {
+    outline: none;
+    border-color: #6F4E37; /* Green focus border */
+    box-shadow: 0 0 8px #805a3f; /* Larger shadow on focus */
+}
+
+/* Button styling */
+button {
+    font-family: 'Lato', sans-serif;
+    padding: 20px; /* Larger padding for the button */
+    background-color: #3f2c1f;
+    color: white;
+    border: none;
+    border-radius: 8px; /* Rounded corners */
+    font-size: 20px; /* Larger font size for the button */
+    cursor: pointer;
+    width: 100%; /* Make button full width */
+    margin-top: 0px; /* More space above the button */
+}
+
+/* Button hover effect */
+button:hover {
+    background-color: #443021; /* Darker color on hover */
+}
+
+/* Styling for input fields wrapper */
+.cred-box {
+    display: flex;
+    flex-direction: column;
+}
