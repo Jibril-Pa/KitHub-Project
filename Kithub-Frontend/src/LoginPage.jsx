@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import './loginPage.css'
-function loginPage(){
+import { redirect} from 'react-router-dom';
+import './LoginPage.css'
+export default function LoginPage(){
     const [userName,setuserName] = useState('');
     const [password,setPassword] = useState('');
 
@@ -16,9 +17,13 @@ function loginPage(){
         event.preventDefault();
         console.log('Username:', userName);
         console.log('Password:', password);
-
+        if(userName && password){
+            redirect('/home');
+        }
+        setuserName('');
+        setPassword('');
     };
-
+    
     return (
         <div className ="login-form">
             <h2>Welcome to KitHub</h2>
@@ -45,4 +50,3 @@ function loginPage(){
         </div>
     );
 }
-export default loginPage;
