@@ -1,52 +1,52 @@
 import React, { useState } from 'react';
-import { redirect} from 'react-router-dom';
-import './LoginPage.css'
-export default function LoginPage(){
-    const [userName,setuserName] = useState('');
-    const [password,setPassword] = useState('');
+import { useNavigate, Link } from 'react-router-dom';
+import './LoginPage.css';
 
-    function handleUsernameChange(event){
-        setuserName(event.target.value);
-    };
+export default function LoginPage() {
+    const [userName, setUserName] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
-    function handlePasswordChange(event){
-        setPassword(event.target.value);
-    };
+    const handleUsernameChange = e => setUserName(e.target.value);
+    const handlePasswordChange = e => setPassword(e.target.value);
 
-    function handleSubmit(event){
-        event.preventDefault();
-        console.log('Username:', userName);
-        console.log('Password:', password);
-        if(userName && password){
-            redirect('/home');
+    const handleSubmit = e => {
+        e.preventDefault();
+        if (userName && password) {
+            navigate('/home');
         }
-        setuserName('');
+        setUserName('');
         setPassword('');
     };
-    
+
     return (
-        <div className ="login-form">
+        <div className="login-form">
             <h2>Welcome to KitHub</h2>
-            <form onSubmit = {handleSubmit}>
+            <form onSubmit={handleSubmit}>
                 <div className="cred-box">
-                <input
-                    type="text"
-                    id="username"
-                    placeholder='Enter Username...'
-                    onChange = {handleUsernameChange}
-                    value={userName}
+                    <input
+                        type="text"
+                        placeholder="Enter Username…"
+                        value={userName}
+                        onChange={handleUsernameChange}
                     />
-                
-                <input
-                    type="password"
-                    id="password"
-                    placeholder='Enter Password...'
-                    onChange = {handlePasswordChange}
-                    value={password}
-                    /> 
-                  </div>
+                    <input
+                        type="password"
+                        placeholder="Enter Password…"
+                        value={password}
+                        onChange={handlePasswordChange}
+                    />
+                </div>
+
                 <button type="submit">Login</button>
             </form>
+
+            <p className="register-prompt">
+                No account?&nbsp;
+                <Link to="/register" className="register-link">
+                    Create Account Here
+                </Link>
+            </p>
         </div>
     );
 }
