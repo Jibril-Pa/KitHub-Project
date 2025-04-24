@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';  // ← import useNavigate
 import './Register.css';
 
-export default function RegisterPage() {
+export default function Register() {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -26,11 +26,35 @@ export default function RegisterPage() {
             return;
         }
 
-        // TODO: actually create the user (call your API, etc.)
-        console.log('Creating account for:', { firstName, lastName, userName });
+        // Create user object to send in the request
+        const userData = {
+            firstName,
+            lastName,
+            username: userName,
+            password
+        };
 
-        // on success, navigate
-        navigate('/home', { replace: true });
+        // Call the Flask API to register the user
+        fetch("http://localhost:5000/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // On success, navigate to the home page or wherever needed
+                    navigate('/home', { replace: true });
+                } else {
+                    setError(data.message);  // Set error if registration fails
+                }
+            })
+            .catch(error => {
+                setError("Error connecting to the server");
+                console.error("Error:", error);
+            });
 
         // clear form (optional)
         setFirstName('');
@@ -46,19 +70,19 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit}>
                 <div className="cred-box">
                     <div>
-                    <input
-                        type="text"
-                        id="FirstName"
-                        placeholder="Enter First Name…"
-                        value={firstName}
-                        onChange={e => setFirstName(e.target.value)}
-                    />
-                    <input
-                        type="text"
-                        id="LastName"
-                        placeholder="Enter Last Name…"
-                        value={lastName}
-                        onChange={e => setLastName(e.target.value)}
+                        <input
+                            type="text"
+                            id="FirstName"
+                            placeholder="Enter First Name…"
+                            value={firstName}
+                            onChange={e => setFirstName(e.target.value)}
+                        />
+                        <input
+                            type="text"
+                            id="LastName"
+                            placeholder="Enter Last Name…"
+                            value={lastName}
+                            onChange={e => setLastName(e.target.value)}
                         />
                     </div>
                     <input

@@ -1,5 +1,61 @@
-body {
-    margin: 0;
-    font-family: sans-serif;
-    background-color: #f5eee5;
-  }
+/* Floating kitty button */
+.create-post-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 80px;
+  height: 80px;
+  background: #ffb6c1;
+  border: none;
+  border-radius: 50% 50% 45% 45%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-family: sans-serif;
+  color: white;
+  padding: 0;
+}
+
+/* Pointy ears via CSS triangles */
+.create-post-button::before,
+.create-post-button::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  /* adjust vertical position */
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 20px solid #ffb6c1;
+}
+
+.create-post-button::before {
+  left: 16px;
+  /* position left ear */
+}
+
+.create-post-button::after {
+  right: 16px;
+  /* position right ear */
+}
+
+/* The cat face icon */
+.create-post-button .cat-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+/* Label below the face */
+.create-post-button .cat-label {
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+/* Hover effect */
+.create-post-button:hover {
+  background: #ff8fa1;
+}
