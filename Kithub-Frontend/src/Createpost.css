@@ -6,7 +6,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(137, 128, 96, 0.338);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -14,7 +14,7 @@
 }
 
 .modal-content {
-    background: #f0ebd4 ;
+    background: #f0ebd4;
     padding: 24px;
     border-radius: 8px;
     width: 90%;
@@ -46,7 +46,7 @@
     cursor: pointer;
 }
 
-.image-preview img{
+.image-preview img {
     max-width: 100%;
     max-height: 300px;
     object-fit: contain;
