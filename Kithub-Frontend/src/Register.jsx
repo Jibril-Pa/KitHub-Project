@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // ← import useNavigate
 import './Register.css';
 
@@ -11,6 +11,10 @@ export default function Register() {
     const [error, setError] = useState('');
 
     const navigate = useNavigate();         // ← get the navigation fn
+
+    useEffect(() => {
+        document.title = "KitHub  | Register";
+      }, []);
 
     function handleSubmit(e) {
         e.preventDefault();

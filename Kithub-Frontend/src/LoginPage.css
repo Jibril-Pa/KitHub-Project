@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding: 0;
     height: 100vh; /* Full viewport height */
-    background-color: #f7f4e6; /* Cream background for the entire page */
+    background-color: #b99b14; /* Cream background for the entire page */
     font-family: Arial, sans-serif; /* Default font */
     display: flex;
     flex-direction: column;
@@ -20,7 +20,7 @@ h2 {
 
 /* Form styling */
 .login-form {
-    background-color: #f0ebd4 !important; /* White background for form */
+    background-color: #f0ebd4 ; /* White background for form */
     padding: 40px; /* Larger padding to give more space inside the form */
     border-radius: 12px; /* Rounded corners */
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Larger shadow for more depth */
@@ -79,3 +79,7 @@ button:hover {
     flex-direction: column;
 }
 
+.register-prompt,
+.login-header{
+    text-align: center;
+}

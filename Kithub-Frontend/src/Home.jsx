@@ -9,6 +9,10 @@ export default function Home({ setIsLoggedIn }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [posts,setPosts] = useState([]);
 
+    useEffect(() => {
+      document.title = "KitHub 🐾 | Home";
+    }, []);
+    
     useEffect(()=>{
         fetch('http://localhost:3001/posts') // replace w mysql server link
         .then (res => res.json())

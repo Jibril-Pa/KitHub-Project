@@ -3,6 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import './LoginPage.css';
 
 export default function LoginPage({ setIsLoggedIn }) {
+
+  useEffect(() => {
+    document.title = "KitHub  | Login";
+  }, []);
+
+
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
@@ -57,7 +63,7 @@ export default function LoginPage({ setIsLoggedIn }) {
 
     return (
         <div className="login-form">
-            <h2>Welcome to KitHub</h2>
+            <h2 className="login-header">Welcome to KitHub</h2>
             <form onSubmit={handleSubmit}>
                 <div className="cred-box">
                     <input
