@@ -4,7 +4,7 @@ import './Navbar.css';
 import Home from '../Home';
 import LoginPage from "../LoginPage";
 import Settings from "../Settings";
-function Navbar() {
+function Navbar({ setIsLoggedIn }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   
@@ -19,18 +19,20 @@ function Navbar() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    setIsLoggedIn(false);
     console.log("Logged out");
     navigate("/");
     setMenuOpen(false);
   };
 
   return (
-    <nav class="navbar">
-  <div class="navbar-left">
-    <div class="hamburger" onClick={toggleMenu}>
-      <div class="bar"></div>
-      <div class="bar"></div>
-      <div class="bar"></div>
+    <nav className="navbar">
+  <div className="navbar-left">
+    <div className="hamburger" onClick={toggleMenu}>
+      <div className="bar"></div>
+      <div className="bar"></div>
+      <div className="bar"></div>
     </div>
     
     <div className={`dropdown-menu ${menuOpen ? 'open' : ''}`}>

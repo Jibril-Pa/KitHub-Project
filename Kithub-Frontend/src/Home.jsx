@@ -5,7 +5,7 @@ import CreatePostModal from '/src/Createpost';
 import { FaCat } from 'react-icons/fa';
 import './Home.css';
 
-export default function Home() {
+export default function Home({ setIsLoggedIn }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [posts,setPosts] = useState([]);
 
@@ -49,7 +49,7 @@ export default function Home() {
 
     return (
         <>
-            <Navbar />
+            <Navbar setIsLoggedIn={setIsLoggedIn}/>
 
             <div className="home-feed">
             {posts.map(post=>(

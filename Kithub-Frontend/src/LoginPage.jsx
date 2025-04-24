@@ -1,23 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './LoginPage.css';
 
-export default function LoginPage() {
+export default function LoginPage({ setIsLoggedIn }) {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
     const handleUsernameChange = e => setUserName(e.target.value);
     const handlePasswordChange = e => setPassword(e.target.value);
+    /* these user exists only for demo*/
+    const dummyUsers = [
+        { username: 'whiskers', password: 'meow123' },
+        { username: 'mittens', password: 'purrfect' },
+        { username: 'shadow', password: 'sleepycat' }
+      ];
 
-    const handleSubmit = e => {
+
+    useEffect(() => {
+        const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+        if (loggedIn) {
+          navigate('/home');
+        }
+      }, [navigate]);
+
+      const handleSubmit = e => {
+        e.preventDefault();
+      
+        const validUser = dummyUsers.find(
+          (user) => user.username === userName && user.password === password
+        );
+      
+        if (validUser) {
+          localStorage.setItem("isLoggedIn", "true");
+          setIsLoggedIn(true);
+          navigate('/home');
+        } else {
+          alert("Invalid username or password!");
+        }
+      
+        setUserName('');
+        setPassword('');
+      };
+
+    /*const handleSubmit = e => { un comment this when done w demo phase
         e.preventDefault();
         if (userName && password) {
+            localStorage.setItem("isLoggedIn", "true");
+            setIsLoggedIn(true);
+      
             navigate('/home');
         }
         setUserName('');
         setPassword('');
-    };
+    };*/
 
     return (
         <div className="login-form">
