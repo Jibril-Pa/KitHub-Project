@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+
+.settings-container {
+    margin: 0;
+    padding: 80px 0 0; /* Add padding to create space around the form */
+    height: 100vh; /* Full viewport height */
+    background-color: #f7f4e6;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center;
+    overflow: hidden; /* Prevent content overflow */
+}
+
+.settings-scrollable {
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh; /* Ensure the form doesn't exceed 90% of the viewport height */
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content inside the scrollable container */
+    align-items: center;
+}
+
+.settings-form {
+    background-color: #f7f4e6; /* Keep the form background */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Keep the shadow */
+    width: 100%;
+    max-height: 100%; /* Ensure the form fits within the container */
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    box-sizing: border-box;
+}
+
+.settings-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-label {
+    font-family: 'Lato', sans-serif;
+    color: #3f2c1f;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.settings-input {
+    background-color: #cec8ad !important;
+    padding: 20px;
+    font-size: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    margin-top: 0px;
+}
+
+.settings-input:focus {
+    outline: none;
+    border-color: #6F4E37;
+    box-shadow: 0 0 8px #805a3f;
+}
+
+.settings-update-button {
+    font-family: 'Lato', sans-serif;
+    padding: 20px;
+    background-color: #3f2c1f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 20px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0px;
+}
+
+.settings-update-button:hover {
+    background-color: #443021;
+}
+
+.settings-profile-preview {
+    max-width: 100%;
+    max-height: 100px; /* Limit the image height to fit within the form */
+    object-fit: contain; /* Ensure the image scales proportionally */
+    border-radius: 8px;
+    margin-top: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cred-box {
+    display: flex;
+    flex-direction: column;
+}
