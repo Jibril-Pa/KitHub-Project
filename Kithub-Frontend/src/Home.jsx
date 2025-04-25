@@ -23,7 +23,7 @@ const Home = () => {
                 setPosts(data);
             } catch (error) {
                 console.error('Error fetching posts:', error);
-                setError('Failed to load posts.');
+                setError('');
             } finally {
                 setLoading(false);
             }
