@@ -53,3 +53,20 @@
     display: block;
     margin: 1rem auto;
 }
+
+.create-post-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ffb6c1;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}

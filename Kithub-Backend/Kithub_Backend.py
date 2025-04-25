@@ -1,83 +1,101 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import mysql.connector
-from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
+import pymysql
+import os
+from dotenv import load_dotenv  # <-- fixed import
 
+pymysql.install_as_MySQLdb()
+import MySQLdb
+
+# Load environment variables from .env
 load_dotenv()
+
 app = Flask(__name__)
 CORS(app)
 
-# Replace with your actual DB credentials
+# Load DB config from .env or default
 db_config = {
-    "host": "localhost",
-    "user": "KithubAdmin",  # Replace with your actual MySQL username or use an env variable
-    "password": "Cooldude12090",  # Replace with your actual MySQL password or use an env variable
-    "database": "KITHUB"
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'user': os.getenv('DB_USER', 'root'),
+    'password': os.getenv('DB_PASSWORD', 'Cooldude12090'),
+    'database': os.getenv('DB_NAME', 'Kithub'),
+    'cursorclass': pymysql.cursors.Cursor
 }
 
-@app.route("/api/users", methods=["GET"])
-def get_users():
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM users")
-    users = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return jsonify(users)
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-@app.route("/api/login", methods=["POST"])
-def login():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
 
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
-    query = "SELECT * FROM users WHERE username = %s AND password = %s"
-    cursor.execute(query, (username, password))
-    user = cursor.fetchone()
-    cursor.close()
+@app.route('/api/posts', methods=['GET'])
+def get_posts():
+    conn = pymysql.connect(**db_config)
+    cur = conn.cursor()
+    cur.execute("SELECT post_id, user_id, post_caption, post_date, post_comments, post_likes, image_filename FROM post ORDER BY post_date DESC")
+    rows = cur.fetchall()
+    cur.close()
     conn.close()
 
-    if user:
-        return jsonify({"success": True, "user": user})
-    else:
-        return jsonify({"success": False, "message": "Invalid credentials"}), 401
+    posts = []
+    for post_id, user_id, caption, date, comments, likes, image_filename in rows:
+        posts.append({
+            'id': post_id,
+            'userId': user_id,
+            'text': caption,
+            'createdAt': date.isoformat(),
+            'comments': comments,
+            'likes': likes,
+            'image': f'/uploads/{image_filename}' if image_filename else None
+        })
+    return jsonify(posts)
 
-@app.route("/api/register", methods=["POST"])
-def register():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
-    first_name = data.get("firstName")
-    last_name = data.get("lastName")
 
-    # Basic validation (you can extend this)
-    if not username or not password or not first_name or not last_name:
-        return jsonify({"success": False, "message": "All fields are required"}), 400
 
-    # Check if the username already exists
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-    existing_user = cursor.fetchone()
-    
-    if existing_user:
-        cursor.close()
-        conn.close()
-        return jsonify({"success": False, "message": "Username already exists"}), 400
+@app.route('/api/posts', methods=['POST'])
+def create_post():
+    caption = request.form.get('title')
+    body = request.form.get('body')
+    user_id = request.form.get('user_id', 1)
+    post_comments = 0
+    post_likes = 0
 
-    # Insert the new user into the database
-    cursor.execute(
-        "INSERT INTO users (username, password, first_name, last_name) VALUES (%s, %s, %s, %s)",
-        (username, password, first_name, last_name)
+    image = request.files.get('image')
+    image_filename = None
+
+    if image:
+        filename = secure_filename(image.filename)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image.save(image_path)
+        image_filename = filename
+
+    conn = pymysql.connect(**db_config)
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO post (post_caption, post_date, user_id, post_comments, post_likes, image_filename) VALUES (%s, NOW(), %s, %s, %s, %s)",
+        (caption, user_id, post_comments, post_likes, image_filename)
     )
     conn.commit()
-    cursor.close()
+    post_id = cur.lastrowid
+    cur.close()
     conn.close()
 
-    return jsonify({"success": True, "message": "User registered successfully"})
+    return jsonify({
+        'id': post_id,
+        'userId': user_id,
+        'text': caption,
+        'createdAt': __import__('datetime').datetime.utcnow().isoformat(),
+        'comments': post_comments,
+        'likes': post_likes,
+        'image': f'/uploads/{image_filename}' if image_filename else None
+    }), 201
 
-if __name__ == "__main__":
-    print(db_config)
-    app.run(port=5000, debug=True)
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+# ✅ SINGLE app runner — no duplicates
+if __name__ == '__main__':
+    app.run(debug=True, port=7777)  # 0.0.0.0 makes it accessible from other devices

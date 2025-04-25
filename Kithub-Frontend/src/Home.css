@@ -1,128 +1,73 @@
-/* Floating kitty button */
+.home-container {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .create-post-button {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 80px;
-  height: 80px;
-  background: #e59ea9;
+  background-color: #ffb6c1;
   border: none;
-  border-radius: 50% 50% 45% 45%;
+  height: auto;
+  width: auto;
+  padding: 0.75rem 1.5rem;
+  border-radius: 20px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  font-family: sans-serif;
-  color: white;
-  padding: 0;
-  z-index: 10; /* Ensure the button is above other elements */
+  font-weight: bold;
 }
 
-/* Pointy ears via CSS triangles
-.create-post-button::before,
-.create-post-button::after {
-  content: "";
-  position: absolute;
-  top: -10px;
-  width: 0;
-  height: 0;
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 20px solid #e59ea9;
-}
-
-.create-post-button::before {
-  left: 16px;
-}
-
-.create-post-button::after {
-  right: 16px;
-} */
-
-/* The cat face icon */
-.create-post-button .cat-icon {
-  font-size: 32px;
-  line-height: 1;
-}
-
-/* Label below the face */
-.create-post-button .cat-label {
-  font-size: 10px;
-  margin-top: 4px;
-}
-
-/* Hover effect */
-.create-post-button:hover {
-  background: #ff8fa1;
-}
-
-/* Add styles for the modal overlay and content.  These were in Createpost.css */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background: white;
-    padding: 24px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-}
-
-.modal-content h2 {
-    margin-top: 0;
-}
-
-.modal-content form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.modal-content label {
-    display: flex;
-    flex-direction: column;
-    font-weight: 500;
-}
-
-.modal-close {
-    margin-top: 16px;
-    background: none;
-    border: none;
-    color: #555;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.post-feed {
-  max-height: 80vh;
+.posts-container {
+  flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .post-card {
-  background: white;
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fdfdfd;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
 }
 
-.post-card img {
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-image {
+  width: 30px;
+  height: 30px;
+  background: #ddd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-content img {
   max-width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  margin-top: 0.5rem;
   border-radius: 8px;
-  margin-bottom: 8px;
+}
+
+.post-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 1rem;
 }
