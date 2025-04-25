@@ -18,15 +18,13 @@ const Home = () => {
         const fetchPosts = async () => {
             try {
                 const response = await fetch('http://localhost:7777/api/posts');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 setPosts(data);
-                setLoading(false);
             } catch (error) {
                 console.error('Error fetching posts:', error);
                 setError('Failed to load posts.');
+            } finally {
                 setLoading(false);
             }
         };
@@ -41,10 +39,7 @@ const Home = () => {
                 body: formData,
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const newPost = await response.json();
             setPosts([newPost, ...posts]);
             setIsModalOpen(false);
@@ -72,30 +67,32 @@ const Home = () => {
                     />
                 )}
 
-                <div className="posts-container">
+                <div className="posts-grid">
                     {loading ? (
-                        <div>Loading posts...</div>
+                        <div className="loading">Loading posts...</div>
                     ) : error ? (
-                        <div>Error: {error}</div>
+                        <div className="error">{error}</div>
                     ) : (
                         posts.map((post) => (
                             <div key={post.id} className="post-card">
                                 <div className="post-header">
                                     <div className="user-info">
-                                        <div className="profile-image">👤</div>
-                                        <span>User {post.userId}</span>
+                                        <span className="user-icon">👤</span>
+                                        <div>
+                                            <div className="username">User #{post.userId}</div>
+                                            <div className="timestamp">{new Date(post.createdAt).toLocaleString()}</div>
+                                        </div>
                                     </div>
-                                    <span className="post-time">{new Date(post.createdAt).toLocaleString()}</span>
                                 </div>
-                                <div className="post-content">
-                                    <p>{post.text}</p>
+                                <div className="post-image">
                                     {post.image && (
                                         <img src={`http://localhost:7777${post.image}`} alt="Post" />
                                     )}
                                 </div>
+                                <div className="post-text">{post.text}</div>
                                 <div className="post-actions">
-                                    <button>Like</button>
-                                    <button>Comment</button>
+                                    <button className="like-button">Like (0)</button>
+                                    <button className="comment-button">Comment (0)</button>
                                 </div>
                             </div>
                         ))
