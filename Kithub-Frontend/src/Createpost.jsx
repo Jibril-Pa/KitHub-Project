@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import heic2any from "heic2any"; // <--- import it
 import './Createpost.css';
 
 export default function CreatePostModal({ onClose, onPublish }) {
@@ -7,17 +8,37 @@ export default function CreatePostModal({ onClose, onPublish }) {
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const selected = e.target.files[0];
         if (selected) {
-            setFile(selected);
-            setPreview(URL.createObjectURL(selected));
+            if (selected.type === "image/heic" || selected.name.endsWith(".heic")) {
+                try {
+                    const convertedBlob = await heic2any({
+                        blob: selected,
+                        toType: "image/jpeg",
+                        quality: 0.8, // optional, 0 to 1
+                    });
+
+                    const jpegFile = new File(
+                        [convertedBlob],
+                        selected.name.replace(/\.[^/.]+$/, ".jpg"),
+                        { type: "image/jpeg" }
+                    );
+
+                    setFile(jpegFile);
+                    setPreview(URL.createObjectURL(convertedBlob));
+                } catch (error) {
+                    console.error("HEIC to JPEG conversion failed", error);
+                }
+            } else {
+                setFile(selected);
+                setPreview(URL.createObjectURL(selected));
+            }
         }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Build form data to send to your backend or parent handler
         const formData = new FormData();
         formData.append('title', title);
         formData.append('body', body);
@@ -25,12 +46,10 @@ export default function CreatePostModal({ onClose, onPublish }) {
             formData.append('image', file);
         }
 
-        // Call the publish callback (e.g., API call)
         if (onPublish) {
             onPublish(formData);
         }
 
-        // Close modal
         onClose();
     };
 

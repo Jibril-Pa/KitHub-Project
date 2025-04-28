@@ -1,6 +1,8 @@
 .posts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  flex-direction: column;
+  margin-top: 675px;
   gap: 1.5rem;
   padding: 2rem;
 }
@@ -19,6 +21,7 @@
   display: flex;
   align-items: center;
   border-bottom: 1px solid #eee;
+  flex-direction: column;
 }
 
 .user-info {
@@ -83,4 +86,23 @@
   gap: 0.5rem;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.main-content {
+  padding-top: 80px;
+  /* Adjust to match the height of your navbar */
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #442E27;
+  z-index: 1000;
+}
+.home-container {
+  padding-top: 60px;
+  /* Equal to navbar height */
 }
