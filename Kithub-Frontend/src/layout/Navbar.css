@@ -53,6 +53,8 @@
 
 /* Title in the center */
 .navbar-title {
+  text-decoration: none;
+  color: #ebdcca; /* <- add this */
   font-family: monospace;
   font-size: clamp(1.25rem, 5vw, 2.25rem);
   font-weight: bold;
@@ -64,6 +66,9 @@
   text-align: center;
 }
 
+.navbar-title:visited {
+  color: #ebdcca;
+}
 /* Dropdown styles */
 .dropdown-menu {
   position: absolute;

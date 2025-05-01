@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './LoginPage.css';
 
-export default function LoginPage({ setIsLoggedIn }) {
+export default function LoginPage({ setIsLoggedIn,isLoggedIn }) {
 
   useEffect(() => {
     document.title = "KitHub  | Login";
@@ -23,12 +23,11 @@ export default function LoginPage({ setIsLoggedIn }) {
       ];
 
 
-    useEffect(() => {
-        const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-        if (loggedIn) {
+      useEffect(() => {
+        if (isLoggedIn) {
           navigate('/home');
         }
-      }, [navigate]);
+      }, [isLoggedIn, navigate]);
 
       const handleSubmit = e => {
         e.preventDefault();

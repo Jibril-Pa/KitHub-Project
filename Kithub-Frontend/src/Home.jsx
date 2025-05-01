@@ -4,7 +4,7 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const Home = () => {
+const Home = ({ setIsLoggedIn, isLoggedIn }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -53,7 +53,7 @@ const Home = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn}/>
             <div className="home-container">
                 <button className="create-post-button" onClick={() => setIsModalOpen(true)} aria-label="Create Post">
                     <FaCat className="cat-icon" />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import './Navbar.css';
 import Home from '../Home';
 import LoginPage from "../LoginPage";
@@ -22,7 +22,7 @@ function Navbar({ setIsLoggedIn }) {
     localStorage.removeItem("isLoggedIn");
     setIsLoggedIn(false);
     console.log("Logged out");
-    navigate("/");
+    window.location.href = "/";
     setMenuOpen(false);
   };
 
@@ -41,7 +41,9 @@ function Navbar({ setIsLoggedIn }) {
       </div>
 
       <div className="navbar-center">
-        <h1 className="navbar-title">KitHub</h1>
+      <Link to="/" className="navbar-title">
+        KitHub
+      </Link>
       </div>
 
       <div className="navbar-right">

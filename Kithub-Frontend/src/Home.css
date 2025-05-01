@@ -1,11 +1,29 @@
-.posts-grid {
+/*.posts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   flex-direction: column;
   margin-top: 675px;
   gap: 1.5rem;
   padding: 2rem;
+}*/
+.posts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px); /* Adjust if needed for navbar and padding */
 }
+
+/*
+.post-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}*/
 
 .post-card {
   background-color: #fff;
@@ -14,6 +32,10 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .post-header {
