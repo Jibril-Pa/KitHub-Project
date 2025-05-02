@@ -13,7 +13,19 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
     useEffect(() => {
         document.title = "KitHub | Home";
     }, []);
-
+    const handleDeletePost = async (postId) => {
+        try {
+          const response = await fetch(`http://192.168.7.82:7777/api/posts/${postId}`, {
+            method: 'DELETE',
+          });
+          if (!response.ok) throw new Error('Failed to delete post');
+          // Remove the post from the UI after successful deletion
+          setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+        } catch (error) {
+          console.error(error);
+          alert('Error deleting post.');
+        }
+      };
     const handleCommentChange = (postId, value) => {
         setCommentInputs((prev) => ({ ...prev, [postId]: value }));
       };
@@ -40,13 +52,18 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
         // Clear input after adding comment
         setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
       };
-   /* useEffect(() => {
+    useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await fetch('http://localhost:7777/api/posts');
+                const response = await fetch('http://192.168.7.82:7777/api/posts');
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-                setPosts(data);
+                const normalizedPosts = data.map(post => ({
+                    ...post,
+                    comments: Array.isArray(post.comments) ? post.comments : [],
+                }));
+    
+                setPosts(normalizedPosts);
             } catch (error) {
                 console.error('Error fetching posts:', error);
                 setError('');
@@ -55,46 +72,12 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
             }
         };
         fetchPosts();
-    }, []);*/
-    useEffect(() => {
-        setPosts([
-          {
-            id: 1,
-            likes: 0,
-            userId: 101,
-            createdAt: new Date().toISOString(),
-            image: "https://i.pinimg.com/474x/0e/f5/49/0ef5497a58c2ba5900ffa8a4656ed0a8.jpg",
-            text: "Meet Luna, the queen of cardboard boxes and sunlight naps.",
-            comments: [
-              { id: 1, userId: 501, text: "She’s adorable!", createdAt: new Date().toISOString() },
-              { id: 2, userId: 502, text: "I want a cat like Luna 😻", createdAt: new Date().toISOString() }
-            ]
-          },
-          {
-            id: 2,
-            userId: 202,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-            image: "https://i.pinimg.com/474x/0e/f5/49/0ef5497a58c2ba5900ffa8a4656ed0a8.jpg",
-            text: "Tips on keeping your indoor cat entertained during work hours!",
-            comments: [
-              { id: 3, userId: 503, text: "Great advice. My cat is so bored!", createdAt: new Date().toISOString() }
-            ]
-          },
-          {
-            id: 3,
-            userId: 303,
-            createdAt: new Date(Date.now() - 172800000).toISOString(),
-            image: "https://i.pinimg.com/474x/0e/f5/49/0ef5497a58c2ba5900ffa8a4656ed0a8.jpg",
-            text: "Why does my cat knock everything off the table? We investigated.",
-            comments: []
-          }
-        ]);
-        setLoading(false);
-      }, []);
+    }, []);
+    
     const handleCreatePost = async (formData) => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:7777/api/posts', {
+            const response = await fetch('http://192.168.7.82:7777/api/posts', {
                 method: 'POST',
                 body: formData,
             });
@@ -159,9 +142,10 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                 <div className="post-actions">
                                     <button className="like-button" onClick={() => handleLike(post.id)}>Likes {post.likes}</button>
                                     <button className="comment-button">Comment</button>
+                                    <button className="delete-button" onClick={() => handleDeletePost(post.id)}> Delete</button>
                                 </div>
 
-                                <div className="comments-section">
+                               {/* <div className="comments-section">
                                         <div className="existing-comments">
                                             {post.comments.map((comment) => (
                                             <div key={comment.id} className="comment">
@@ -184,7 +168,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                            />
                                            
                                         </div>
-                                    </div>
+                                    </div> */}
                             </div>
                         ))
                     )}

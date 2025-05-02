@@ -16,7 +16,7 @@ CORS(app)
 
 # Load DB config from .env or default
 db_config = {
-    'host': os.getenv('DB_HOST', 'localhost'),
+    'host': os.getenv('DB_HOST', '192.168.7.82'),
     'user': os.getenv('DB_USER', 'root'),
     'password': os.getenv('DB_PASSWORD', 'Cooldude12090'),
     'database': os.getenv('DB_NAME', 'Kithub'),
