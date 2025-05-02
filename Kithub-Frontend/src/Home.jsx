@@ -4,7 +4,7 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const SERVER_URL = 'http://192.168.7.82:7777';
+const SERVER_URL = 'http://10.176.68.200:7777';
 
 
 
@@ -66,11 +66,35 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                 const response = await fetch(`${SERVER_URL}/api/posts`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-                const normalizedPosts = data.map(post => ({
-                    ...post,
-                    comments: Array.isArray(post.comments) ? post.comments : [],
+
+                // Fetch comments for each post
+                const postsWithComments = await Promise.all(data.map(async (post) => {
+                    try {
+                        const commentRes = await fetch(`${SERVER_URL}/api/comments/${post.id}`);
+                        const commentData = await commentRes.json();
+
+                        // Format comments
+                        const formattedComments = commentData.map((c, index) => ({
+                            id: `${post.id}-${index}`, // Unique ID for React rendering
+                            userId: 'N/A',              // Adjust if user info is added later
+                            text: c.comments_text,
+                            createdAt: new Date().toISOString()
+                        }));
+
+                        return {
+                            ...post,
+                            comments: formattedComments
+                        };
+                    } catch (err) {
+                        console.error(`Failed to fetch comments for post ${post.id}:`, err);
+                        return {
+                            ...post,
+                            comments: []
+                        };
+                    }
                 }));
-                setPosts(normalizedPosts);
+
+                setPosts(postsWithComments);
             } catch (error) {
                 console.error('Error fetching posts:', error);
                 setError('Failed to load posts.');
@@ -80,6 +104,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
         };
         fetchPosts();
     }, []);
+
 
     const handleCreatePost = async (formData) => {
         setLoading(true);

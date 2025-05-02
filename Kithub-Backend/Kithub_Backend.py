@@ -101,7 +101,6 @@ def delete_post(post_id):
 
     return jsonify({'message': f'Post {post_id} deleted'}), 200
 
-
     
 @app.route('/image/<int:post_id>')
 def get_image(post_id):
@@ -116,7 +115,25 @@ def get_image(post_id):
         return app.response_class(result[0], mimetype='image/jpeg')
     else:
         return 'Image not found', 404
+    
+@app.route('/api/comments/<int:post_id>')
+def get_comments(post_id):
+    conn = pymysql.connect(**db_config)
+    cur = conn.cursor()
+    cur.execute("SELECT comment_text FROM comments WHERE post_id = %s", (post_id,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
 
+    comments = []
+    for row in rows:
+        comments.append({
+            'id': post_id,
+            'comments_text': row[0]
+        })
+    return jsonify(comments)
+
+ 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
