@@ -3,42 +3,50 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import pymysql
 import os
-from dotenv import load_dotenv  # <-- fixed import
-
-pymysql.install_as_MySQLdb()
-import MySQLdb
+from dotenv import load_dotenv
 
 # Load environment variables from .env
 load_dotenv()
 
+# Allow PyMySQL to be used in place of MySQLdb
+pymysql.install_as_MySQLdb()
+import MySQLdb
+
+# Flask app setup
 app = Flask(__name__)
 CORS(app)
 
-# Load DB config from .env or default
+# === DB Config for Wi-Fi ===
+# Replace '192.168.x.x' with your actual computer's IP address on your Wi-Fi network
 db_config = {
-    'host': os.getenv('DB_HOST', '192.168.7.82'),
+    'host': os.getenv('DB_HOST', 'localhost'),  # <--- update this IP
     'user': os.getenv('DB_USER', 'root'),
     'password': os.getenv('DB_PASSWORD', 'Cooldude12090'),
     'database': os.getenv('DB_NAME', 'Kithub'),
     'cursorclass': pymysql.cursors.Cursor
 }
 
+# File upload folder
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-
+# === GET /api/posts ===
 @app.route('/api/posts', methods=['GET'])
 def get_posts():
     conn = pymysql.connect(**db_config)
     cur = conn.cursor()
-    cur.execute("SELECT post_id, user_id, post_caption, post_date, post_comments, post_likes, image_filename FROM post ORDER BY post_date DESC")
+    cur.execute("""
+        SELECT post_id, user_id, post_caption, post_date, post_comments, post_likes 
+        FROM post 
+        ORDER BY post_date DESC
+    """)
     rows = cur.fetchall()
     cur.close()
     conn.close()
 
     posts = []
-    for post_id, user_id, caption, date, comments, likes, image_filename in rows:
+    for post_id, user_id, caption, date, comments, likes in rows:
         posts.append({
             'id': post_id,
             'userId': user_id,
@@ -46,12 +54,12 @@ def get_posts():
             'createdAt': date.isoformat(),
             'comments': comments,
             'likes': likes,
-            'image': f'/uploads/{image_filename}' if image_filename else None
+            'image': f'/image/{post_id}'  # new route to fetch image
         })
     return jsonify(posts)
 
 
-
+# === POST /api/posts ===
 @app.route('/api/posts', methods=['POST'])
 def create_post():
     caption = request.form.get('title')
@@ -61,19 +69,13 @@ def create_post():
     post_likes = 0
 
     image = request.files.get('image')
-    image_filename = None
-
-    if image:
-        filename = secure_filename(image.filename)
-        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        image.save(image_path)
-        image_filename = filename
+    image_blob = image.read() if image else None
 
     conn = pymysql.connect(**db_config)
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO post (post_caption, post_date, user_id, post_comments, post_likes, image_filename) VALUES (%s, NOW(), %s, %s, %s, %s)",
-        (caption, user_id, post_comments, post_likes, image_filename)
+        "INSERT INTO post (post_caption, post_date, user_id, post_comments, post_likes, post_image) VALUES (%s, NOW(), %s, %s, %s, %s)",
+        (caption, user_id, post_comments, post_likes, image_blob)
     )
     conn.commit()
     post_id = cur.lastrowid
@@ -87,15 +89,29 @@ def create_post():
         'createdAt': __import__('datetime').datetime.utcnow().isoformat(),
         'comments': post_comments,
         'likes': post_likes,
-        'image': f'/uploads/{image_filename}' if image_filename else None
+        'image': f'/image/{post_id}'
     }), 201
 
+@app.route('/image/<int:post_id>')
+def get_image(post_id):
+    conn = pymysql.connect(**db_config)
+    cur = conn.cursor()
+    cur.execute("SELECT post_image FROM post WHERE post_id = %s", (post_id,))
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
 
+    if result and result[0]:
+        return app.response_class(result[0], mimetype='image/jpeg')  # Change to PNG if needed
+    else:
+        return 'Image not found', 404
+
+# === GET /uploads/<filename> ===
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-
-# ✅ SINGLE app runner — no duplicates
+# === App Runner ===
 if __name__ == '__main__':
-    app.run(debug=True, port=7777)  # 0.0.0.0 makes it accessible from other devices
+    # Replace '0.0.0.0' with your actual IP if needed for strict access
+    app.run(host='0.0.0.0', debug=True, port=7777)
