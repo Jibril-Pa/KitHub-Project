@@ -6,6 +6,9 @@ import CreatePost from './Createpost';
 
 const SERVER_URL = 'http://192.168.7.82:7777';
 
+
+
+
 const Home = ({ setIsLoggedIn, isLoggedIn }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [posts, setPosts] = useState([]);
@@ -159,4 +162,3 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
 };
 
 export default Home;
-    

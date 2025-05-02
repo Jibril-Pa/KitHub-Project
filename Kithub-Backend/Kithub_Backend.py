@@ -54,12 +54,10 @@ def get_posts():
             'createdAt': date.isoformat(),
             'comments': comments,
             'likes': likes,
-            'image': f'/image/{post_id}'  # new route to fetch image
+            'image': f'/image/{post_id}'  
         })
     return jsonify(posts)
 
-
-# === POST /api/posts ===
 @app.route('/api/posts', methods=['POST'])
 def create_post():
     caption = request.form.get('title')
@@ -92,6 +90,19 @@ def create_post():
         'image': f'/image/{post_id}'
     }), 201
 
+@app.route('/api/posts/<int:post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    conn = pymysql.connect(**db_config)
+    cur = conn.cursor()
+    cur.execute("DELETE FROM post WHERE post_id = %s", (post_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({'message': f'Post {post_id} deleted'}), 200
+
+
+    
 @app.route('/image/<int:post_id>')
 def get_image(post_id):
     conn = pymysql.connect(**db_config)
@@ -102,16 +113,13 @@ def get_image(post_id):
     conn.close()
 
     if result and result[0]:
-        return app.response_class(result[0], mimetype='image/jpeg')  # Change to PNG if needed
+        return app.response_class(result[0], mimetype='image/jpeg')
     else:
         return 'Image not found', 404
 
-# === GET /uploads/<filename> ===
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# === App Runner ===
 if __name__ == '__main__':
-    # Replace '0.0.0.0' with your actual IP if needed for strict access
     app.run(host='0.0.0.0', debug=True, port=7777)
