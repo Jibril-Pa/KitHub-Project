@@ -156,7 +156,9 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                     <button className="like-button" onClick={() => handleLike(post.id)}>Likes {post.likes}</button>
                                     <button className="comment-button">Comment</button>
                                     <button className="delete-button" onClick={() => handleDeletePost(post.id)}>Delete</button>
-                                    {/* 
+                                    
+                                </div>
+                                { 
                                         <div className="comments-section">
                                         <div className="existing-comments">
                                             {post.comments.map((comment) => (
@@ -177,10 +179,9 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                                 }
                                             }}
                                             />
+                                            </div>
                                         </div>
-                                        </div>
-*/}
-                                </div>
+                }
                             </div>
                         ))
                     )}
