@@ -9,12 +9,38 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    const [commentInputs, setCommentInputs] = useState({});
     useEffect(() => {
         document.title = "KitHub | Home";
     }, []);
 
-    useEffect(() => {
+    const handleCommentChange = (postId, value) => {
+        setCommentInputs((prev) => ({ ...prev, [postId]: value }));
+      };
+
+      const handleAddComment = (postId) => {
+        const text = commentInputs[postId];
+        if (!text || text.trim() === "") return;
+      
+        const newComment = {
+          id: Date.now(), // simple unique ID
+          userId: 999,    // mock user ID
+          text,
+          createdAt: new Date().toISOString(),
+        };
+      
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId
+              ? { ...post, comments: [...post.comments, newComment] }
+              : post
+          )
+        );
+      
+        // Clear input after adding comment
+        setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
+      };
+   /* useEffect(() => {
         const fetchPosts = async () => {
             try {
                 const response = await fetch('http://localhost:7777/api/posts');
@@ -29,8 +55,42 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
             }
         };
         fetchPosts();
-    }, []);
-
+    }, []);*/
+    useEffect(() => {
+        setPosts([
+          {
+            id: 1,
+            likes: 0,
+            userId: 101,
+            createdAt: new Date().toISOString(),
+            image: "https://i.pinimg.com/474x/0e/f5/49/0ef5497a58c2ba5900ffa8a4656ed0a8.jpg",
+            text: "Meet Luna, the queen of cardboard boxes and sunlight naps.",
+            comments: [
+              { id: 1, userId: 501, text: "She’s adorable!", createdAt: new Date().toISOString() },
+              { id: 2, userId: 502, text: "I want a cat like Luna 😻", createdAt: new Date().toISOString() }
+            ]
+          },
+          {
+            id: 2,
+            userId: 202,
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+            image: "https://i.pinimg.com/474x/0e/f5/49/0ef5497a58c2ba5900ffa8a4656ed0a8.jpg",
+            text: "Tips on keeping your indoor cat entertained during work hours!",
+            comments: [
+              { id: 3, userId: 503, text: "Great advice. My cat is so bored!", createdAt: new Date().toISOString() }
+            ]
+          },
+          {
+            id: 3,
+            userId: 303,
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+            image: "https://i.pinimg.com/474x/0e/f5/49/0ef5497a58c2ba5900ffa8a4656ed0a8.jpg",
+            text: "Why does my cat knock everything off the table? We investigated.",
+            comments: []
+          }
+        ]);
+        setLoading(false);
+      }, []);
     const handleCreatePost = async (formData) => {
         setLoading(true);
         try {
@@ -50,7 +110,13 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
             setLoading(false);
         }
     };
-
+    const handleLike = (postId) => {
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId ? { ...post, likes: post.likes + 1 } : post
+          )
+        );
+      };
     return (
         <>
             <Navbar setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn}/>
@@ -79,21 +145,46 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                     <div className="user-info">
                                         <span className="user-icon">👤</span>
                                         <div>
-                                            <div className="username">User #{post.userId}</div>
+                                            <div className="username">User {post.userId}</div>
                                             <div className="timestamp">{new Date(post.createdAt).toLocaleString()}</div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="post-image">
                                     {post.image && (
-                                        <img src={`http://localhost:7777${post.image}`} alt="Post" />
+                                        <img  src={post.image} alt="Post" />
                                     )}
                                 </div>
                                 <div className="post-text">{post.text}</div>
                                 <div className="post-actions">
-                                    <button className="like-button">Like (0)</button>
-                                    <button className="comment-button">Comment (0)</button>
+                                    <button className="like-button" onClick={() => handleLike(post.id)}>Likes {post.likes}</button>
+                                    <button className="comment-button">Comment</button>
                                 </div>
+
+                                <div className="comments-section">
+                                        <div className="existing-comments">
+                                            {post.comments.map((comment) => (
+                                            <div key={comment.id} className="comment">
+                                                <strong>User #{comment.userId}:</strong> {comment.text}
+                                            </div>
+                                            ))}
+                                        </div>
+                                        <div className="add-comment">
+                                            <input
+                                            type="text"
+                                            placeholder="Add a comment..."
+                                            value={commentInputs[post.id] || ""}
+                                            onChange={(e) => handleCommentChange(post.id, e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                  handleAddComment(post.id);
+                                                }
+                                              }}
+                                           
+                                           />
+                                           
+                                        </div>
+                                    </div>
                             </div>
                         ))
                     )}
