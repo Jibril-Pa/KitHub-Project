@@ -20,7 +20,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
         document.title = "KitHub | Home";
     }, []);
 
-    const handleDeletePost = async (postId) => {
+    const handleDeletePost = async (postId,e) => {
         try {
             const response = await fetch(`${SERVER_URL}/api/posts/${postId}`, {
                 method: 'DELETE',
@@ -31,6 +31,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
             console.error(error);
             alert('Error deleting post.');
         }
+        e.preventDefault();
     };
 
     const handleCommentChange = (postId, value) => {
@@ -137,7 +138,11 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                         <span className="user-icon">👤</span>
                                         <div>
                                             <div className="username">User {post.userId}</div>
-                                            <div className="timestamp">{new Date(post.createdAt).toLocaleString()}</div>
+                                            <div className="timestamp">{new Date(post.createdAt).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                })}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -151,6 +156,30 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                     <button className="like-button" onClick={() => handleLike(post.id)}>Likes {post.likes}</button>
                                     <button className="comment-button">Comment</button>
                                     <button className="delete-button" onClick={() => handleDeletePost(post.id)}>Delete</button>
+                                    {/* 
+                                        <div className="comments-section">
+                                        <div className="existing-comments">
+                                            {post.comments.map((comment) => (
+                                            <div key={comment.id} className="comment">
+                                                <strong>User #{comment.userId}:</strong> {comment.text}
+                                            </div>
+                                            ))}
+                                        </div>
+                                        <div className="add-comment">
+                                            <input
+                                            type="text"
+                                            placeholder="Add a comment..."
+                                            value={commentInputs[post.id] || ""}
+                                            onChange={(e) => handleCommentChange(post.id, e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                handleAddComment(post.id);
+                                                }
+                                            }}
+                                            />
+                                        </div>
+                                        </div>
+*/}
                                 </div>
                             </div>
                         ))
