@@ -1,27 +1,23 @@
-import React, { useState,useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';  // ← import useNavigate
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Register.css';
 
 export default function Register() {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
     const [error, setError] = useState('');
-
-    const navigate = useNavigate();         // ← get the navigation fn
+    const navigate = useNavigate();
 
     useEffect(() => {
-        document.title = "KitHub  | Register";
-      }, []);
+        document.title = "KitHub | Register";
+    }, []);
 
     function handleSubmit(e) {
         e.preventDefault();
         setError('');
 
-        // simple field checks
-        if (!firstName || !lastName || !userName) {
+        if (!userName || !password || !confirmPassword) {
             setError('All fields are required.');
             return;
         }
@@ -30,16 +26,12 @@ export default function Register() {
             return;
         }
 
-        // Create user object to send in the request
         const userData = {
-            firstName,
-            lastName,
-            username: userName,
-            password
+            user_name: userName,
+            user_password: password,
         };
 
-        // Call the Flask API to register the user
-        fetch("http://localhost:5000/api/register", {
+        fetch("http://localhost:7777/api/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -49,10 +41,9 @@ export default function Register() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // On success, navigate to the home page or wherever needed
                     navigate('/home', { replace: true });
                 } else {
-                    setError(data.message);  // Set error if registration fails
+                    setError(data.message || 'Registration failed.');
                 }
             })
             .catch(error => {
@@ -60,9 +51,6 @@ export default function Register() {
                 console.error("Error:", error);
             });
 
-        // clear form (optional)
-        setFirstName('');
-        setLastName('');
         setUserName('');
         setPassword('');
         setConfirmPassword('');
@@ -73,22 +61,6 @@ export default function Register() {
             <h2>Create New Account</h2>
             <form onSubmit={handleSubmit}>
                 <div className="cred-box">
-                    <div>
-                        <input
-                            type="text"
-                            id="FirstName"
-                            placeholder="Enter First Name…"
-                            value={firstName}
-                            onChange={e => setFirstName(e.target.value)}
-                        />
-                        <input
-                            type="text"
-                            id="LastName"
-                            placeholder="Enter Last Name…"
-                            value={lastName}
-                            onChange={e => setLastName(e.target.value)}
-                        />
-                    </div>
                     <input
                         type="text"
                         placeholder="Enter Username…"

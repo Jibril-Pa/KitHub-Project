@@ -4,7 +4,7 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const SERVER_URL = 'http://10.176.68.200:7777';
+const SERVER_URL = 'http://192.168.7.82:7777';
 
 
 
@@ -38,27 +38,42 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
         setCommentInputs((prev) => ({ ...prev, [postId]: value }));
     };
 
-    const handleAddComment = (postId) => {
+    const handleAddComment = async (postId) => {
         const text = commentInputs[postId];
         if (!text || text.trim() === "") return;
 
-        const newComment = {
-            id: Date.now(),
-            userId: 999,
-            text,
-            createdAt: new Date().toISOString(),
-        };
+        try {
+            const response = await fetch(`${SERVER_URL}/api/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    postId: postId,
+                    userId: 999,  // Replace with dynamic user ID if you have login
+                    text: text.trim()
+                })
+            });
 
-        setPosts((prevPosts) =>
-            prevPosts.map((post) =>
-                post.id === postId
-                    ? { ...post, comments: [...post.comments, newComment] }
-                    : post
-            )
-        );
+            if (!response.ok) throw new Error("Failed to send comment");
 
-        setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
+            const newComment = await response.json();
+
+            setPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                    post.id === postId
+                        ? { ...post, comments: [...post.comments, newComment] }
+                        : post
+                )
+            );
+
+            setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
+        } catch (error) {
+            console.error("Error adding comment:", error);
+            alert("Failed to add comment.");
+        }
     };
+
 
     useEffect(() => {
         const fetchPosts = async () => {
