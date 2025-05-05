@@ -18,9 +18,9 @@ CORS(app)
 
 # === DB Config ===
 db_config = {
-    'host': os.getenv('DB_HOST', 'localhost'),
-    'user': os.getenv('DB_USER', 'root'),
-    'password': os.getenv('DB_PASSWORD', 'Cooldude12090'),
+    'host': os.getenv('DB_HOST', 'kithub.ch00sss2423b.us-east-2.rds.amazonaws.com'),
+    'user': os.getenv('DB_USER', 'admin'),
+    'password': os.getenv('DB_PASSWORD', 'Cooldude12090_'),
     'database': os.getenv('DB_NAME', 'Kithub'),
     'cursorclass': pymysql.cursors.Cursor
 }
