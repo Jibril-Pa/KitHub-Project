@@ -14,13 +14,13 @@ export default function App() {
   }, []);
   return (
     <Routes>
-      <Route path="/" element={<LoginPage setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn}/>} />
+      <Route path="/" element={<LoginPage setIsLoggedIn={setIsLoggedIn} setUser={setUser}  isLoggedIn={isLoggedIn}/>} />
       <Route path="/register" element={<Register />} />
       <Route
         path="/home"
         element={
           <PrivateRoute isLoggedIn={isLoggedIn}>
-            <Home setIsLoggedIn={setIsLoggedIn} />
+            <Home user={user} setIsLoggedIn={setIsLoggedIn} />
           </PrivateRoute>
         }
       />

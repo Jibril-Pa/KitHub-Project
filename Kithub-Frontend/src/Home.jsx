@@ -4,9 +4,10 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const SERVER_URL = 'http://192.168.7.82:7777';
+const SERVER_URL = 'http://172.19.213.126:7777';
 
-const Home = ({ setIsLoggedIn, isLoggedIn }) => {
+const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
+    console.log("Current logged-in user:", user);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
