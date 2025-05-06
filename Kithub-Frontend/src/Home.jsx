@@ -4,16 +4,9 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-<<<<<<< HEAD
-const SERVER_URL = 'http://192.168.1.125:7777';
-=======
-const SERVER_URL = 'http://172.19.213.126:7777';
+const SERVER_URL = 'http://192.168.7.82:7777';
 
-
-
->>>>>>> db4bc7a97406291de85c851b061e0a039d56668a
-
-const Home = ({ setIsLoggedIn, isLoggedIn, user }) => {
+const Home = ({ setIsLoggedIn, isLoggedIn }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -107,6 +100,14 @@ const Home = ({ setIsLoggedIn, isLoggedIn, user }) => {
     const handleCreatePost = async (formData) => {
         setLoading(true);
         try {
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                alert("You must be logged in to post.");
+                return;
+            }
+
+            formData.append("user_id", userId); // ✅ Append user_id to the form data
+
             const response = await fetch(`${SERVER_URL}/api/posts`, {
                 method: 'POST',
                 body: formData,
@@ -131,7 +132,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn, user }) => {
             )
         );
     };
-    
+
     return (
         <>
             <Navbar setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />
@@ -160,7 +161,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn, user }) => {
                                     <div className="user-info">
                                         <span className="user-icon">👤</span>
                                         <div>
-                                            <div className="username">User {post.userId}</div>
+                                            <div className="username">{post.userName}</div>
                                             <div className="timestamp">{new Date(post.createdAt).toLocaleDateString('en-US', {
                                                 year: 'numeric',
                                                 month: 'long',
@@ -176,13 +177,8 @@ const Home = ({ setIsLoggedIn, isLoggedIn, user }) => {
                                 </div>
                                 <div className="post-text">{post.text}</div>
                                 <div className="post-actions">
-<<<<<<< HEAD
                                     <button className="like-button" onClick={() => handleLike(post.id)}>Likes {post.likes ?? 0}</button>
                                     <button className="comment-button">Comment</button>
-=======
-                                    <button className="like-button" onClick={() => handleLike(post.id)}>Like {post.likes}</button>
-                                    {/* <button className="comment-button">Comment</button> */}
->>>>>>> db4bc7a97406291de85c851b061e0a039d56668a
                                     <button className="delete-button" onClick={() => handleDeletePost(post.id)}>Delete</button>
                                 </div>
 
@@ -190,7 +186,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn, user }) => {
                                     <div className="existing-comments">
                                         {(post.comments ?? []).map((comment) => (
                                             <div key={comment.id} className="comment">
-                                                <strong>User #{comment.userId}:</strong> {comment.text}
+                                                <strong>{comment.userName}:</strong> {comment.text}
                                             </div>
                                         ))}
                                     </div>
