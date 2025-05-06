@@ -259,7 +259,7 @@ def login_user():
     conn = pymysql.connect(**db_config)
     cur = conn.cursor()
     cur.execute(
-        "SELECT user_id FROM user WHERE user_name = %s AND user_password = %s",
+        "SELECT user_id,user_name FROM user WHERE user_name = %s AND user_password = %s",
         (user_name, user_password)
     )
     user = cur.fetchone()
@@ -267,7 +267,7 @@ def login_user():
     conn.close()
 
     if user:
-        return jsonify({'success': True, 'userId': user[0]})
+        return jsonify({'success': True, 'userId': user[0],'username': user[1]})
     else:
         return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
 
