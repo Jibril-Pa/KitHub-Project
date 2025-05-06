@@ -7,7 +7,7 @@ import Settings from './Settings';
 import PrivateRoute from './PrivateRoute';
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
-
+  const [user, setUser] = useState(null);
   useEffect(() => {
     const loggedIn = localStorage.getItem("isLoggedIn") === "true";
     setIsLoggedIn(loggedIn);
@@ -28,7 +28,7 @@ export default function App() {
         path="/settings"
         element={
           <PrivateRoute isLoggedIn={isLoggedIn}>
-            <Settings setIsLoggedIn={setIsLoggedIn}/>
+            <Settings user={user}  setIsLoggedIn={setIsLoggedIn}/>
           </PrivateRoute>
         }
       />
