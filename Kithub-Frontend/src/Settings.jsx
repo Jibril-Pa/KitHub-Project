@@ -6,7 +6,7 @@ function Settings({ user }) {
     // State variables for user settings
     const [firstName, setFirstName] = useState('First Name');
     const [lastName, setLastName] = useState('Last Name');
-    const [userName, setUserName] = useState('Username');
+    const [userName, setUserName] = useState(user?.username || '');
     const [profilePicture, setProfilePicture] = useState(null);
     const [tempProfilePicture, setTempProfilePicture] = useState(null);
 
@@ -107,7 +107,7 @@ function Settings({ user }) {
                             <input
                                 type="text"
                                 id="userName"
-                                value={user.username}
+                                value={userName}
                                 onFocus={(e) => handleFocus(e, 'Username')}
                                 onBlur={(e) => handleBlur(e, 'Username')}
                                 onChange={handleUserNameChange}
