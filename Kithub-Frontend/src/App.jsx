@@ -9,8 +9,13 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [user, setUser] = useState(null);
   useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-    setIsLoggedIn(loggedIn);
+    const storedLogin = localStorage.getItem("isLoggedIn") === "true";
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+  
+    setIsLoggedIn(storedLogin);
+    if (storedLogin && storedUser) {
+      setUser(storedUser); // ✅ restores the user on refresh
+    }
   }, []);
   return (
     <Routes>

@@ -3,6 +3,7 @@ import './Settings.css';
 import Navbar from './layout/Navbar';
 
 function Settings({ user }) {
+    console.log(user);
     const [firstName, setFirstName] = useState('First Name');
     const [lastName, setLastName] = useState('Last Name');
     const [userName, setUserName] = useState('Username');
@@ -106,7 +107,7 @@ function Settings({ user }) {
                             <input
                                 type="text"
                                 id="userName"
-                                value={userName}
+                                value={user.userName}
                                 onFocus={(e) => handleFocus(e, 'Username')}
                                 onBlur={(e) => handleBlur(e, 'Username')}
                                 onChange={handleUserNameChange}

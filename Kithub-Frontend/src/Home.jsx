@@ -82,7 +82,7 @@ const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
             if (!response.ok) throw new Error("Failed to send comment");
 
             const newComment = await response.json();
-
+            newComment.userName = user?.username || "You";
             setPosts((prevPosts) =>
                 prevPosts.map((post) =>
                     post.id === postId
