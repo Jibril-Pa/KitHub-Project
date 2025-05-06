@@ -4,7 +4,7 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const SERVER_URL = 'http://172.19.213.126:7777';
+const SERVER_URL = 'http://10.176.104.215:7777';
 
 const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
     console.log("Current logged-in user:", user);

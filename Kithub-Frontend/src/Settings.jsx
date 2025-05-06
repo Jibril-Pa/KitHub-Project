@@ -1,34 +1,100 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import heic2any from 'heic2any';
 import './Settings.css';
 import Navbar from './layout/Navbar';
 
 function Settings({ user }) {
-    // State variables for user settings
     const [firstName, setFirstName] = useState('First Name');
     const [lastName, setLastName] = useState('Last Name');
     const [userName, setUserName] = useState(user?.username || '');
     const [profilePicture, setProfilePicture] = useState(null);
     const [tempProfilePicture, setTempProfilePicture] = useState(null);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // Modal state
-
-    const handleFirstNameChange = (e) => setFirstName(e.target.value);
-    const handleLastNameChange = (e) => setLastName(e.target.value);
-    const handleUserNameChange = (e) => setUserName(e.target.value);
-
-    const handleProfilePictureChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setTempProfilePicture(URL.createObjectURL(file));
-            setProfilePicture(file);
-            setIsProfileModalOpen(false); // Close modal after selecting
+    // Load user profile picture
+    useEffect(() => {
+        if (user && user.id) {
+            console.log('Loading profile picture for user:', user.id);
+            fetch(`http://10.176.104.215:7777/api/user/${user.id}/profile-picture`)
+                .then(res => res.ok ? res.blob() : null)
+                .then(blob => {
+                    if (blob) {
+                        const imageUrl = URL.createObjectURL(blob);
+                        setTempProfilePicture(imageUrl);
+                    }
+                })
+                .catch(err => console.error('Error fetching profile picture:', err));
+        } else {
+            console.warn('User object or user ID missing.');
         }
+    }, [user]);
+
+    // Handle profile picture file input
+    const handleProfilePictureChange = async (e) => {
+        const selected = e.target.files[0];
+        if (!selected) return;
+
+        if (selected.type === 'image/heic' || selected.name.toLowerCase().endsWith('.heic')) {
+            try {
+                const convertedBlob = await heic2any({
+                    blob: selected,
+                    toType: 'image/jpeg',
+                    quality: 0.8,
+                });
+
+                const jpegFile = new File(
+                    [convertedBlob],
+                    selected.name.replace(/\.[^/.]+$/, '.jpg'),
+                    { type: 'image/jpeg' }
+                );
+
+                setProfilePicture(jpegFile);
+                setTempProfilePicture(URL.createObjectURL(convertedBlob));
+            } catch (error) {
+                console.error('HEIC to JPEG conversion failed:', error);
+            }
+        } else {
+            setProfilePicture(selected);
+            setTempProfilePicture(URL.createObjectURL(selected));
+        }
+
+        setIsProfileModalOpen(false);
     };
 
+    // Update profile picture (optional) and log debug info
     const handleUpdateSettings = () => {
-        console.log('Updating settings:', { firstName, lastName, userName, profilePicture });
-        setTempProfilePicture(null);
+        console.log('Update button clicked');
+        console.log('User:', user);
+        console.log('Selected profilePicture:', profilePicture);
+
+        if (!user || !user.id) {
+            console.warn('Missing user ID. Cannot proceed.');
+            return;
+        }
+
+        if (profilePicture) {
+            const formData = new FormData();
+            formData.append('profile_picture', profilePicture);
+
+            fetch(`http://10.176.104.215:7777/api/user/${user.id}/profile-picture`, {
+                method: 'POST',
+                body: formData,
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Profile picture uploaded:', data);
+                    setTempProfilePicture(null);
+                })
+                .catch(err => console.error('Upload failed:', err));
+        } else {
+            console.log('No new profile picture selected. Skipping image upload.');
+        }
+
+        // Add logic here to save other settings (username, etc.) if needed
     };
+
+    const openProfileModal = () => setIsProfileModalOpen(true);
+    const closeProfileModal = () => setIsProfileModalOpen(false);
 
     const handleFocus = (e, defaultValue) => {
         if (e.target.value === defaultValue) e.target.value = '';
@@ -38,17 +104,13 @@ function Settings({ user }) {
         if (e.target.value === '') e.target.value = defaultValue;
     };
 
-    const openProfileModal = () => setIsProfileModalOpen(true);
-    const closeProfileModal = () => setIsProfileModalOpen(false);
-
     return (
         <>
             <Navbar />
             <div className="settings-container lato-font">
                 <div className="settings-scrollable">
                     <form onSubmit={(e) => e.preventDefault()} className="settings-form">
-
-                        {/* Profile Picture At Top */}
+                        {/* Profile Picture Display */}
                         <div className="profile-picture-wrapper" onClick={openProfileModal}>
                             {tempProfilePicture ? (
                                 <img src={tempProfilePicture} alt="Profile" className="profile-picture" />
@@ -57,7 +119,7 @@ function Settings({ user }) {
                             )}
                         </div>
 
-                        {/* Modal for changing profile picture */}
+                        {/* Profile Picture Modal */}
                         {isProfileModalOpen && (
                             <div className="modal-overlay" onClick={closeProfileModal}>
                                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -67,7 +129,7 @@ function Settings({ user }) {
                                     <input
                                         type="file"
                                         id="profilePicture"
-                                        accept="image/*"
+                                        accept="image/*,.heic"
                                         onChange={handleProfilePictureChange}
                                         className="modal-input"
                                     />
@@ -75,33 +137,7 @@ function Settings({ user }) {
                             </div>
                         )}
 
-                        {/* Settings Inputs */}
-                        {/* <div className="settings-form-group cred-box">
-                            <label htmlFor="firstName" className="settings-label">First Name:</label>
-                            <input
-                                type="text"
-                                id="firstName"
-                                value={firstName}
-                                onFocus={(e) => handleFocus(e, 'First Name')}
-                                onBlur={(e) => handleBlur(e, 'First Name')}
-                                onChange={handleFirstNameChange}
-                                className="settings-input"
-                            />
-                        </div> */}
-
-                        {/* <div className="settings-form-group cred-box">
-                            <label htmlFor="lastName" className="settings-label">Last Name:</label>
-                            <input
-                                type="text"
-                                id="lastName"
-                                value={lastName}
-                                onFocus={(e) => handleFocus(e, 'Last Name')}
-                                onBlur={(e) => handleBlur(e, 'Last Name')}
-                                onChange={handleLastNameChange}
-                                className="settings-input"
-                            />
-                        </div> */}
-
+                        {/* Username Input */}
                         <div className="settings-form-group cred-box">
                             <label htmlFor="userName" className="settings-label">Username:</label>
                             <input
@@ -110,12 +146,17 @@ function Settings({ user }) {
                                 value={userName}
                                 onFocus={(e) => handleFocus(e, 'Username')}
                                 onBlur={(e) => handleBlur(e, 'Username')}
-                                onChange={handleUserNameChange}
+                                onChange={(e) => setUserName(e.target.value)}
                                 className="settings-input"
                             />
                         </div>
 
-                        <button className="settings-update-button" onClick={handleUpdateSettings}>
+                        {/* Update Button */}
+                        <button
+                            type="button"
+                            className="settings-update-button"
+                            onClick={handleUpdateSettings}
+                        >
                             Update Settings
                         </button>
                     </form>

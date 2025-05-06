@@ -259,7 +259,7 @@ def login_user():
     conn = pymysql.connect(**db_config)
     cur = conn.cursor()
     cur.execute(
-        "SELECT user_id,user_name FROM user WHERE user_name = %s AND user_password = %s",
+        "SELECT user_id, user_name FROM user WHERE user_name = %s AND user_password = %s",
         (user_name, user_password)
     )
     user = cur.fetchone()
@@ -267,9 +267,56 @@ def login_user():
     conn.close()
 
     if user:
-        return jsonify({'success': True, 'userId': user[0],'username': user[1]})
+        return jsonify({
+            'success': True,
+            'userId': user[0],
+            'username': user[1]
+        })
     else:
         return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
+
+
+@app.route('/api/user/<int:user_id>/profile-picture', methods=['POST'])
+def upload_profile_picture(user_id):
+    image = request.files.get('profile_picture')
+    if not image:
+        return jsonify({'error': 'No image uploaded'}), 400
+
+    image_blob = image.read()
+
+    conn = pymysql.connect(**db_config)
+    try:
+        with conn.cursor() as cur:
+            # Make sure the user exists
+            cur.execute("SELECT user_id FROM user WHERE user_id = %s", (user_id,))
+            if not cur.fetchone():
+                return jsonify({'error': 'User not found'}), 404
+
+            # Update profile picture
+            cur.execute("UPDATE user SET profile_picture = %s WHERE user_id = %s", (image_blob, user_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+    return jsonify({'message': 'Profile picture updated'}), 200
+
+
+
+@app.route('/api/user/<int:user_id>/profile-picture', methods=['GET'])
+def get_profile_picture(user_id):
+    conn = pymysql.connect(**db_config)
+    cur = conn.cursor()
+    cur.execute("SELECT profile_picture FROM user WHERE user_id = %s", (user_id,))
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if result and result[0]:
+        # Use a generic binary type to allow browsers to infer content
+        return app.response_class(result[0], mimetype='application/octet-stream')
+    else:
+        return 'No profile picture', 404
+
 
 
 @app.route('/uploads/<filename>')
