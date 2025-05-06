@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './Settings.css';
 import Navbar from './layout/Navbar';
 
-function Settings() {
+function Settings({ user }) {
     const [firstName, setFirstName] = useState('First Name');
     const [lastName, setLastName] = useState('Last Name');
     const [userName, setUserName] = useState('Username');
@@ -75,7 +75,7 @@ function Settings() {
                         )}
 
                         {/* Settings Inputs */}
-                        <div className="settings-form-group cred-box">
+                        {/* <div className="settings-form-group cred-box">
                             <label htmlFor="firstName" className="settings-label">First Name:</label>
                             <input
                                 type="text"
@@ -86,9 +86,9 @@ function Settings() {
                                 onChange={handleFirstNameChange}
                                 className="settings-input"
                             />
-                        </div>
+                        </div> */}
 
-                        <div className="settings-form-group cred-box">
+                        {/* <div className="settings-form-group cred-box">
                             <label htmlFor="lastName" className="settings-label">Last Name:</label>
                             <input
                                 type="text"
@@ -99,7 +99,7 @@ function Settings() {
                                 onChange={handleLastNameChange}
                                 className="settings-input"
                             />
-                        </div>
+                        </div> */}
 
                         <div className="settings-form-group cred-box">
                             <label htmlFor="userName" className="settings-label">Username:</label>

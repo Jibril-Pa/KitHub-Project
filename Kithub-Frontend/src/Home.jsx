@@ -4,12 +4,12 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const SERVER_URL = 'http://192.168.7.82:7777';
+const SERVER_URL = 'http://172.19.213.126:7777';
 
 
 
 
-const Home = ({ setIsLoggedIn, isLoggedIn }) => {
+const Home = ({ setIsLoggedIn, isLoggedIn, user }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -148,7 +148,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
             )
         );
     };
-
+    
     return (
         <>
             <Navbar setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />
@@ -193,8 +193,8 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                 </div>
                                 <div className="post-text">{post.text}</div>
                                 <div className="post-actions">
-                                    <button className="like-button" onClick={() => handleLike(post.id)}>Likes {post.likes}</button>
-                                    <button className="comment-button">Comment</button>
+                                    <button className="like-button" onClick={() => handleLike(post.id)}>Like {post.likes}</button>
+                                    {/* <button className="comment-button">Comment</button> */}
                                     <button className="delete-button" onClick={() => handleDeletePost(post.id)}>Delete</button>
                                     
                                 </div>

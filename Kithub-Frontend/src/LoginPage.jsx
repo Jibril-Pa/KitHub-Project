@@ -29,6 +29,12 @@ export default function LoginPage({ setIsLoggedIn, isLoggedIn }) {
       if (data.success) {
         localStorage.setItem('isLoggedIn', 'true');
         setIsLoggedIn(true);
+        const user = {
+          username: data.username,
+        };
+      
+        localStorage.setItem('user', JSON.stringify(user)); // Save for refreshes
+        setUser(user);
         navigate('/home');
       } else {
         setError(data.message || 'Invalid username or password.');
