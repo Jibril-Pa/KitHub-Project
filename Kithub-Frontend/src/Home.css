@@ -7,16 +7,23 @@
   padding: 2rem;
 }*/
 .posts-grid {
+  padding-top: 60px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   padding: 2rem;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   scrollbar-width: none;       /* Firefox */
   -ms-overflow-style: none;    /* IE 10+ */
-  max-height: calc(100vh - 120px); /* Adjust if needed for navbar and padding */
+   max-height: calc(100vh - 120px);  
 }
-
+.user-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;     /* makes it a circle */
+  object-fit: cover;      /* keeps the image from stretching */
+  border: 1px solid #ccc; /* optional: adds a light border */
+}
 /*
 .post-card {
   background-color: #fff;

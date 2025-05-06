@@ -15,7 +15,7 @@ function Settings({ user }) {
     useEffect(() => {
         if (user && user.id) {
             console.log('Loading profile picture for user:', user.id);
-            fetch(`http://10.176.104.215:7777/api/user/${user.id}/profile-picture`)
+            fetch(`http://172.19.213.126:7777/api/user/${user.id}/profile-picture`)
                 .then(res => res.ok ? res.blob() : null)
                 .then(blob => {
                     if (blob) {
@@ -76,7 +76,7 @@ function Settings({ user }) {
             const formData = new FormData();
             formData.append('profile_picture', profilePicture);
 
-            fetch(`http://10.176.104.215:7777/api/user/${user.id}/profile-picture`, {
+            fetch(`http://172.19.213.126:7777/api/user/${user.id}/profile-picture`, {
                 method: 'POST',
                 body: formData,
             })

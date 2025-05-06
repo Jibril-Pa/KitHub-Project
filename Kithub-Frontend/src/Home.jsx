@@ -4,7 +4,7 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const SERVER_URL = 'http://10.176.104.215:7777';
+const SERVER_URL = 'http://172.19.213.126:7777';
 
 const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
     console.log("Current logged-in user:", user);
@@ -13,7 +13,14 @@ const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [commentInputs, setCommentInputs] = useState({});
+    const [collapsedComments, setCollapsedComments] = useState({});
 
+    const toggleComments = (postId) => {
+        setCollapsedComments((prev) => ({
+          ...prev,
+          [postId]: !prev[postId],
+        }));
+      };
     useEffect(() => {
         document.title = "KitHub | Home";
 
@@ -31,6 +38,12 @@ const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 setPosts(data);
+
+                const collapsedMap = {};
+            data.forEach((post) => {
+                collapsedMap[post.id] = true;
+            });
+            setCollapsedComments(collapsedMap);
             } catch (error) {
                 console.error('Error fetching posts:', error);
                 setError('Failed to load posts.');
@@ -156,62 +169,91 @@ const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
                     ) : error ? (
                         <div className="error">{error}</div>
                     ) : (
-                        posts.map((post) => (
-                            <div key={post.id} className="post-card">
-                                <div className="post-header">
-                                    <div className="user-info">
-                                        <span className="user-icon">👤</span>
-                                        <div>
-                                            <div className="username">{post.userName}</div>
-                                            <div className="timestamp">{new Date(post.createdAt).toLocaleDateString('en-US', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                            })}</div>
+                        posts.map((post) => {
+                            console.log('Post:', post);
+                            console.log('Rendering post by userId:', post.userId);
+                            return (
+                                <div key={post.id} className="post-card">
+                                    <div className="post-header">
+                                        <div className="user-info">
+                                            <img className="user-icon"
+                                                src={`http://172.19.213.126:7777/api/user/14/profile-picture`}
+                                                alt="user profile picture"
+                                            />
+                                            <div>
+                                                <div className="username">{post.userName}</div>
+                                                <div className="timestamp">
+                                                    {new Date(post.createdAt).toLocaleDateString('en-US', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                    })}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="post-image">
-                                    {post.image && (
-                                        <img src={`${SERVER_URL}${post.image}`} alt="Post" />
-                                    )}
-                                </div>
-                                <div className="post-text">{post.text}</div>
-                                <div className="post-actions">
-                                    <button className="like-button" onClick={() => handleLike(post.id)}>Likes {post.likes ?? 0}</button>
-                                    <button className="comment-button">Comment</button>
-                                    <button className="delete-button" onClick={() => handleDeletePost(post.id)}>Delete</button>
-                                </div>
 
-                                <div className="comments-section">
-                                    <div className="existing-comments">
-                                        {(post.comments ?? []).map((comment) => (
-                                            <div key={comment.id} className="comment">
-                                                <strong>{comment.userName}:</strong> {comment.text}
+                                    <div className="post-image">
+                                        {post.image && (
+                                            <img src={`${SERVER_URL}${post.image}`} alt="Post" />
+                                        )}
+                                    </div>
+
+                                    <div className="post-text">{post.text}</div>
+
+                                    <div className="post-actions">
+                                        <button className="like-button" onClick={() => handleLike(post.id)}>
+                                            Likes {post.likes ?? 0}
+                                        </button>
+                                        <button
+                                                className="comment-button"
+                                                onClick={() => toggleComments(post.id)}
+                                                >
+                                                {collapsedComments[post.id] ? 'Show Comments' : 'Hide Comments'}
+                                                </button>
+                                                {post.userName === user?.username && (
+                                                    <button className="delete-button" onClick={() => handleDeletePost(post.id)}>
+                                                        Delete
+                                                    </button>
+                                                    )}
+                                    </div>
+
+                                    {!collapsedComments[post.id] && (
+                                            <div className="comments-section">
+                                                <div className="existing-comments">
+                                                {(post.comments ?? []).map((comment) => (
+                                                    <div key={comment.id} className="comment">
+                                                    <strong>{comment.userName}:</strong> {comment.text}
+                                                    </div>
+                                                ))}
+                                                </div>
+                                                <div className="add-comment">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Add a comment..."
+                                                    value={commentInputs[post.id] || ""}
+                                                    onChange={(e) => handleCommentChange(post.id, e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleAddComment(post.id);
+                                                    }
+                                                    }}
+                                                />
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                    <div className="add-comment">
-                                        <input
-                                            type="text"
-                                            placeholder="Add a comment..."
-                                            value={commentInputs[post.id] || ""}
-                                            onChange={(e) => handleCommentChange(post.id, e.target.value)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter") {
-                                                    handleAddComment(post.id);
-                                                }
-                                            }}
-                                        />
-                                    </div>
+                                            )}
+
+
+
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                 </div>
             </div>
         </>
     );
+
 };
 
 export default Home;
