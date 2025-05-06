@@ -5,10 +5,8 @@ import pymysql
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env
 load_dotenv()
 
-# Allow PyMySQL to be used in place of MySQLdb
 pymysql.install_as_MySQLdb()
 import MySQLdb
 
@@ -33,29 +31,57 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # === GET /api/posts ===
 @app.route('/api/posts', methods=['GET'])
 def get_posts():
+    user_id = request.args.get('user_id', default=None, type=int)
+
     conn = pymysql.connect(**db_config)
     cur = conn.cursor()
-    cur.execute("""
-        SELECT post_id, user_id, post_caption, post_date, post_comments, post_likes 
-        FROM post 
-        ORDER BY post_date DESC
-    """)
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
+
+    if user_id:
+        cur.execute("""
+            SELECT post_id, user_id, post_caption, post_date, post_comments, post_likes 
+            FROM post 
+            WHERE user_id = %s
+            ORDER BY post_date DESC
+        """, (user_id,))
+    else:
+        cur.execute("""
+            SELECT post_id, user_id, post_caption, post_date, post_comments, post_likes 
+            FROM post 
+            ORDER BY post_date DESC
+        """)
+
+    posts_raw = cur.fetchall()
+
+    cur.execute("SELECT comment_id, post_id, user_id, comment_text, created_at FROM comments")
+    comments_raw = cur.fetchall()
+
+    comments_by_post = {}
+    for comment_id, post_id, user_id, text, created_at in comments_raw:
+        comment = {
+            'id': comment_id,
+            'userId': user_id,
+            'text': text,
+            'createdAt': created_at.isoformat()
+        }
+        comments_by_post.setdefault(post_id, []).append(comment)
 
     posts = []
-    for post_id, user_id, caption, date, comments, likes in rows:
+    for post_id, user_id, caption, date, comments_count, likes in posts_raw:
         posts.append({
             'id': post_id,
             'userId': user_id,
             'text': caption,
             'createdAt': date.isoformat(),
-            'comments': [],  # Comments fetched separately
+            'comments': comments_by_post.get(post_id, []),
             'likes': likes,
-            'image': f'/image/{post_id}'  
+            'image': f'/image/{post_id}'
         })
+
+    cur.close()
+    conn.close()
     return jsonify(posts)
+
+
 
 # === POST /api/posts ===
 @app.route('/api/posts', methods=['POST'])
@@ -238,6 +264,7 @@ def login_user():
     except Exception as e:
         print("Login error:", e)
         return jsonify({'success': False, 'message': 'Server error'}), 500
+
 
 
 # === GET /uploads/<filename> ===

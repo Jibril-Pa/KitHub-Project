@@ -4,10 +4,7 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const SERVER_URL = 'http://192.168.7.82:7777';
-
-
-
+const SERVER_URL = 'http://192.168.1.125:7777';
 
 const Home = ({ setIsLoggedIn, isLoggedIn }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,11 +15,36 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
 
     useEffect(() => {
         document.title = "KitHub | Home";
+
+        const fetchPosts = async () => {
+            const userId = localStorage.getItem('userId');
+
+            if (!userId) {
+                setError('User not logged in.');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SERVER_URL}/api/posts`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                setPosts(data);
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                setError('Failed to load posts.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPosts();
     }, []);
 
-    const handleDeletePost = async (postId,e) => {
+    const handleDeletePost = async (postId) => {
+        const userId = localStorage.getItem('userId');
         try {
-            const response = await fetch(`${SERVER_URL}/api/posts/${postId}`, {
+            const response = await fetch(`${SERVER_URL}/api/posts/${postId}?user_id=${userId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error('Failed to delete post');
@@ -31,7 +53,6 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
             console.error(error);
             alert('Error deleting post.');
         }
-        e.preventDefault();
     };
 
     const handleCommentChange = (postId, value) => {
@@ -40,7 +61,9 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
 
     const handleAddComment = async (postId) => {
         const text = commentInputs[postId];
-        if (!text || text.trim() === "") return;
+        const userId = localStorage.getItem('userId');
+
+        if (!text || text.trim() === "" || !userId) return;
 
         try {
             const response = await fetch(`${SERVER_URL}/api/comments`, {
@@ -49,8 +72,8 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    postId: postId,
-                    userId: 999,  // Replace with dynamic user ID if you have login
+                    postId,
+                    userId,
                     text: text.trim()
                 })
             });
@@ -62,7 +85,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
             setPosts((prevPosts) =>
                 prevPosts.map((post) =>
                     post.id === postId
-                        ? { ...post, comments: [...post.comments, newComment] }
+                        ? { ...post, comments: [...(post.comments || []), newComment] }
                         : post
                 )
             );
@@ -73,53 +96,6 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
             alert("Failed to add comment.");
         }
     };
-
-
-    useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const response = await fetch(`${SERVER_URL}/api/posts`);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-
-                // Fetch comments for each post
-                const postsWithComments = await Promise.all(data.map(async (post) => {
-                    try {
-                        const commentRes = await fetch(`${SERVER_URL}/api/comments/${post.id}`);
-                        const commentData = await commentRes.json();
-
-                        // Format comments
-                        const formattedComments = commentData.map((c, index) => ({
-                            id: `${post.id}-${index}`, // Unique ID for React rendering
-                            userId: 'N/A',              // Adjust if user info is added later
-                            text: c.comments_text,
-                            createdAt: new Date().toISOString()
-                        }));
-
-                        return {
-                            ...post,
-                            comments: formattedComments
-                        };
-                    } catch (err) {
-                        console.error(`Failed to fetch comments for post ${post.id}:`, err);
-                        return {
-                            ...post,
-                            comments: []
-                        };
-                    }
-                }));
-
-                setPosts(postsWithComments);
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-                setError('Failed to load posts.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPosts();
-    }, []);
-
 
     const handleCreatePost = async (formData) => {
         setLoading(true);
@@ -144,7 +120,7 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
     const handleLike = (postId) => {
         setPosts((prevPosts) =>
             prevPosts.map((post) =>
-                post.id === postId ? { ...post, likes: post.likes + 1 } : post
+                post.id === postId ? { ...post, likes: (post.likes ?? 0) + 1 } : post
             )
         );
     };
@@ -179,10 +155,10 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                         <div>
                                             <div className="username">User {post.userId}</div>
                                             <div className="timestamp">{new Date(post.createdAt).toLocaleDateString('en-US', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                })}</div>
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                            })}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -193,35 +169,33 @@ const Home = ({ setIsLoggedIn, isLoggedIn }) => {
                                 </div>
                                 <div className="post-text">{post.text}</div>
                                 <div className="post-actions">
-                                    <button className="like-button" onClick={() => handleLike(post.id)}>Likes {post.likes}</button>
+                                    <button className="like-button" onClick={() => handleLike(post.id)}>Likes {post.likes ?? 0}</button>
                                     <button className="comment-button">Comment</button>
                                     <button className="delete-button" onClick={() => handleDeletePost(post.id)}>Delete</button>
-                                    
                                 </div>
-                                { 
-                                        <div className="comments-section">
-                                        <div className="existing-comments">
-                                            {post.comments.map((comment) => (
+
+                                <div className="comments-section">
+                                    <div className="existing-comments">
+                                        {(post.comments ?? []).map((comment) => (
                                             <div key={comment.id} className="comment">
                                                 <strong>User #{comment.userId}:</strong> {comment.text}
                                             </div>
-                                            ))}
-                                        </div>
-                                        <div className="add-comment">
-                                            <input
+                                        ))}
+                                    </div>
+                                    <div className="add-comment">
+                                        <input
                                             type="text"
                                             placeholder="Add a comment..."
                                             value={commentInputs[post.id] || ""}
                                             onChange={(e) => handleCommentChange(post.id, e.target.value)}
                                             onKeyDown={(e) => {
                                                 if (e.key === "Enter") {
-                                                handleAddComment(post.id);
+                                                    handleAddComment(post.id);
                                                 }
                                             }}
-                                            />
-                                            </div>
-                                        </div>
-                }
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         ))
                     )}

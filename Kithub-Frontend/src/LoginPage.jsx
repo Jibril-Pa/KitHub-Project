@@ -27,7 +27,9 @@ export default function LoginPage({ setIsLoggedIn, isLoggedIn }) {
       const data = await response.json();
 
       if (data.success) {
+        // Store login status and user ID
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', data.userId); // Store userId for later use
         setIsLoggedIn(true);
         navigate('/home');
       } else {
@@ -52,12 +54,14 @@ export default function LoginPage({ setIsLoggedIn, isLoggedIn }) {
             placeholder="Enter Username…"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
+            required
           />
           <input
             type="password"
             placeholder="Enter Password…"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
 
