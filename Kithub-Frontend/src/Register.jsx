@@ -33,7 +33,7 @@ export default function Register() {
             user_password: password,
         };
 
-        fetch('${serverURL}/api/register', {
+        fetch(`${serverURL}/api/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

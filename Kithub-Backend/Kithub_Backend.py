@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash
 import pymysql
 import boto3
 import json
@@ -248,19 +249,34 @@ def register_user():
         return jsonify({'success': False, 'message': 'Missing username or password'}), 400
 
     conn = pymysql.connect(**db_config)
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM user WHERE user_name = %s", (user_name,))
-    if cur.fetchone():
-        return jsonify({'success': False, 'message': 'Username already exists'}), 400
+    try:
+        with conn.cursor() as cur:
+            # Check if username already exists
+            cur.execute("SELECT 1 FROM user WHERE user_name = %s", (user_name,))
+            if cur.fetchone():
+                return jsonify({'success': False, 'message': 'Username already exists'}), 400
 
-    cur.execute(
-        "INSERT INTO user (user_name, user_password, user_email, account_type, profile_picture) VALUES (%s, %s, '', 'user', NULL)",
-        (user_name, user_password)
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True}), 201
+            # Get next available user_id
+            cur.execute("SELECT MAX(user_id) FROM user")
+            max_id_result = cur.fetchone()
+            next_user_id = (max_id_result[0] or 0) + 1
+
+            # Insert new user with manual user_id
+            cur.execute("""
+                INSERT INTO user (user_id, user_name, user_password, account_type, profile_picture)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (next_user_id, user_name, user_password, 'user', None))
+
+            conn.commit()
+
+        return jsonify({'success': True, 'userId': next_user_id}), 201
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        conn.close()
+
+
 
 @app.route('/api/login', methods=['POST'])
 def login_user():
