@@ -2,27 +2,52 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import pymysql
-import os
-from dotenv import load_dotenv
+import boto3
+import json
+from botocore.exceptions import ClientError
 from datetime import datetime
-
-load_dotenv()
+import os
 
 pymysql.install_as_MySQLdb()
 import MySQLdb
 
-# Flask app setup
-app = Flask(__name__)
-CORS(app)
+# === AWS Secrets Manager Setup ===
+def get_db_secrets():
+    secret_name = "kithub/db_credentials"
+    region_name = "us-east-2"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        raise e
+
+    secret = get_secret_value_response['SecretString']
+    return json.loads(secret)
+
+# Load secrets once at startup
+db_secrets = get_db_secrets()
 
 # === DB Config ===
 db_config = {
-    'host': os.getenv('DB_HOST', 'kithub.ch00sss2423b.us-east-2.rds.amazonaws.com'),
-    'user': os.getenv('DB_USER', 'admin'),
-    'password': os.getenv('DB_PASSWORD', 'Cooldude12090_'),
-    'database': os.getenv('DB_NAME', 'Kithub'),
+    'host': db_secrets['DB_HOST'],
+    'user': db_secrets['DB_USER'],
+    'password': db_secrets['DB_PASSWORD'],
+    'database': db_secrets['DB_NAME'],
     'cursorclass': pymysql.cursors.Cursor
 }
+
+# Flask app setup
+app = Flask(__name__)
+CORS(app)
 
 # File upload folder
 UPLOAD_FOLDER = 'uploads'
@@ -32,15 +57,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/api/posts', methods=['GET'])
 def get_posts():
     user_id = request.args.get('user_id', default=None, type=int)
-
     conn = pymysql.connect(**db_config)
 
     with conn.cursor() as cur:
-        # 1. Build user_id → user_name dictionary
         cur.execute("SELECT user_id, user_name FROM user")
         users = {int(uid): uname for uid, uname in cur.fetchall()}
 
-        # 2. Get posts (filtered or not)
         if user_id:
             cur.execute("""
                 SELECT post_id, user_id, post_caption, post_date, post_comments, post_likes 
@@ -56,14 +78,12 @@ def get_posts():
             """)
         posts_raw = cur.fetchall()
 
-        # 3. Get all comments
         cur.execute("""
             SELECT comment_id, post_id, user_id, comment_text, created_at
             FROM comments
         """)
         comments_raw = cur.fetchall()
 
-    # 4. Organize comments by post_id
     comments_by_post = {}
     for comment_id, post_id, commenter_id, text, created_at in comments_raw:
         comment = {
@@ -74,12 +94,11 @@ def get_posts():
         }
         comments_by_post.setdefault(post_id, []).append(comment)
 
-    # 5. Format posts using user_id → userName map
     posts = []
     for post_id, author_id, caption, date, comments_count, likes in posts_raw:
         posts.append({
             'id': post_id,
-            'userId': author_id,  # <-- Add this line
+            'userId': author_id,
             'userName': users.get(int(author_id), "Unknown"),
             'text': caption,
             'createdAt': date.isoformat(),
@@ -88,10 +107,8 @@ def get_posts():
             'image': f'/image/{post_id}'
         })
 
-
     conn.close()
     return jsonify(posts)
-
 
 @app.route('/api/posts', methods=['POST'])
 def create_post():
@@ -104,7 +121,6 @@ def create_post():
 
         user_id = int(user_id)
 
-        # Check if user exists before inserting
         conn = pymysql.connect(**db_config)
         cur = conn.cursor()
         cur.execute("SELECT 1 FROM user WHERE user_id = %s", (user_id,))
@@ -135,12 +151,10 @@ def create_post():
             'image': f'/image/{post_id}'
         }), 201
 
-    except pymysql.err.IntegrityError as e:
+    except pymysql.err.IntegrityError:
         return jsonify({'error': 'Foreign key violation – user ID not valid'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
 
 @app.route('/api/posts/<int:post_id>', methods=['DELETE'])
 def delete_post(post_id):
@@ -150,7 +164,6 @@ def delete_post(post_id):
     conn.commit()
     cur.close()
     conn.close()
-
     return jsonify({'message': f'Post {post_id} deleted'}), 200
 
 @app.route('/image/<int:post_id>')
@@ -277,7 +290,6 @@ def login_user():
     else:
         return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
 
-
 @app.route('/api/user/<int:user_id>/profile-picture', methods=['POST'])
 def upload_profile_picture(user_id):
     image = request.files.get('profile_picture')
@@ -285,24 +297,18 @@ def upload_profile_picture(user_id):
         return jsonify({'error': 'No image uploaded'}), 400
 
     image_blob = image.read()
-
     conn = pymysql.connect(**db_config)
     try:
         with conn.cursor() as cur:
-            # Make sure the user exists
             cur.execute("SELECT user_id FROM user WHERE user_id = %s", (user_id,))
             if not cur.fetchone():
                 return jsonify({'error': 'User not found'}), 404
-
-            # Update profile picture
             cur.execute("UPDATE user SET profile_picture = %s WHERE user_id = %s", (image_blob, user_id))
         conn.commit()
     finally:
         conn.close()
 
-    return jprsonify({'message': 'Profile picture updated'}), 200
-
-
+    return jsonify({'message': 'Profile picture updated'}), 200
 
 @app.route('/api/user/<int:user_id>/profile-picture', methods=['GET'])
 def get_profile_picture(user_id):
@@ -314,12 +320,9 @@ def get_profile_picture(user_id):
     conn.close()
 
     if result and result[0]:
-        # Use a generic binary type to allow browsers to infer content
         return app.response_class(result[0], mimetype='application/octet-stream')
     else:
         return 'No profile picture', 404
-
-
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
