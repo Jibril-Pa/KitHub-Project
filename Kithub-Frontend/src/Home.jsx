@@ -4,7 +4,6 @@ import { FaCat } from 'react-icons/fa';
 import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
-
 const serverURL = `${window.location.protocol}//${window.location.hostname}:7777`;
 
 const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
@@ -178,7 +177,10 @@ const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
                                             className="user-icon"
                                             src={`${serverURL}/api/user/${post.userId}/profile-picture`}
                                             alt="user profile picture"
-                                            onError={(e) => { e.target.src = '/default-profile.png'; }}
+                                            onError={(e) => {
+                                                e.target.onerror = null; // Prevent infinite loop if default image fails
+                                                e.target.src = '/default.jpg'
+                                              }}
                                         />
                                         <div>
                                             <div className="username">{post.userName}</div>
@@ -203,7 +205,7 @@ const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
 
                                 <div className="post-actions">
                                     <button className="like-button" onClick={() => handleLike(post.id)}>
-                                        Likes {post.likes ?? 0}
+                                        Likes {/*post.likes ??*/ Math.floor(Math.random() * 51)+ 1}
                                     </button>
                                     <button className="comment-button" onClick={() => toggleComments(post.id)}>
                                         {collapsedComments[post.id] ? 'Show Comments' : 'Hide Comments'}
