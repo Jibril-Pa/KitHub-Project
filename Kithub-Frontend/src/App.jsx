@@ -9,12 +9,12 @@ import PrivateRoute from './PrivateRoute';
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   // Restore session from localStorage
   useEffect(() => {
     const storedLogin = localStorage.getItem("isLoggedIn") === "true";
     const storedUser = JSON.parse(localStorage.getItem("user"));
-
+    
     if (storedLogin && storedUser && storedUser.id) {
       setIsLoggedIn(true);
       setUser(storedUser);
@@ -22,6 +22,7 @@ export default function App() {
       setIsLoggedIn(false);
       setUser(null);
     }
+    setLoading(false);
   }, []);
   
   useEffect(() => {
@@ -31,9 +32,10 @@ export default function App() {
       setUser(savedUser);
       setIsLoggedIn(true);
     }
+    
   }, []);
 
-
+if(loading) return null;
   return (
     <Routes>
       <Route
