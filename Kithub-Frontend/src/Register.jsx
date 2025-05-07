@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Register.css';
 
+const serverURL = `${window.location.protocol}//${window.location.hostname}:7777`;
+
 export default function Register() {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
@@ -31,7 +33,7 @@ export default function Register() {
             user_password: password,
         };
 
-        fetch("http://192.168.7.82:7777/api/register", {
+        fetch('${serverURL}/api/register', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

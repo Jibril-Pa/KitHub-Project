@@ -1,10 +1,11 @@
+// Home.js
 import React, { useState, useEffect } from 'react';
 import { FaCat } from 'react-icons/fa';
 import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const SERVER_URL = 'http://192.168.7.82:7777';
+const serverURL = `${window.location.protocol}//${window.location.hostname}:7777`;
 
 const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,14 +27,15 @@ const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
 
         const fetchPosts = async () => {
             const userId = localStorage.getItem('userId');
-            console.log("Loaded userId from localStorage:", userId);
+
+            if (!userId) {
+                setError('User not logged in.');
+                setLoading(false);
+                return;
+            }
 
             try {
-                // Optional: If you want to fetch only that user's posts
-                // const response = await fetch(`${SERVER_URL}/api/posts?user_id=${userId}`);
-
-                // If you want all posts regardless of login:
-                const response = await fetch(`${SERVER_URL}/api/posts`);
+                const response = await fetch(`${serverURL}/api/posts`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 setPosts(data);
@@ -57,7 +59,7 @@ const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
     const handleDeletePost = async (postId) => {
         const userId = localStorage.getItem('userId');
         try {
-            const response = await fetch(`${SERVER_URL}/api/posts/${postId}?user_id=${userId}`, {
+            const response = await fetch(`${serverURL}/api/posts/${postId}?user_id=${userId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error('Failed to delete post');
@@ -79,7 +81,7 @@ const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
         if (!text || text.trim() === "" || !userId) return;
 
         try {
-            const response = await fetch(`${SERVER_URL}/api/comments`, {
+            const response = await fetch(`${serverURL}/api/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -121,7 +123,7 @@ const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
 
             formData.append("user_id", userId);
 
-            const response = await fetch(`${SERVER_URL}/api/posts`, {
+            const response = await fetch(`${serverURL}/api/posts`, {
                 method: 'POST',
                 body: formData,
             });
@@ -167,8 +169,6 @@ const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
                         <div className="loading">Loading posts...</div>
                     ) : error ? (
                         <div className="error">{error}</div>
-                    ) : posts.length === 0 ? (
-                        <div className="no-posts">No posts found.</div>
                     ) : (
                         posts.map((post) => (
                             <div key={post.id} className="post-card">
@@ -176,7 +176,7 @@ const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
                                     <div className="user-info">
                                         <img
                                             className="user-icon"
-                                            src={`${SERVER_URL}/api/user/${post.userId}/profile-picture`}
+                                            src={`${serverURL}/api/user/${post.userId}/profile-picture`}
                                             alt="user profile picture"
                                             onError={(e) => { e.target.src = '/default-profile.png'; }}
                                         />
@@ -195,7 +195,7 @@ const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
 
                                 <div className="post-image">
                                     {post.image && (
-                                        <img src={`${SERVER_URL}${post.image}`} alt="Post" />
+                                        <img src={`${serverURL}${post.image}`} alt="Post" />
                                     )}
                                 </div>
 

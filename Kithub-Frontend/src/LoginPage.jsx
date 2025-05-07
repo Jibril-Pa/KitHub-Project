@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './LoginPage.css';
 
+const serverURL = `${window.location.protocol}//${window.location.hostname}:7777`;
+
 export default function LoginPage({ setIsLoggedIn, setUser, isLoggedIn }) {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +20,7 @@ export default function LoginPage({ setIsLoggedIn, setUser, isLoggedIn }) {
     setError('');
 
     try {
-      const response = await fetch('http://192.168.7.82:7777/api/login', {
+      const response = await fetch(`${serverURL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_name: userName, user_password: password }),

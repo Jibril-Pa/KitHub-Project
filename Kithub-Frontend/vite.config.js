@@ -5,3 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
 })
+
+// src/config.js
+export const SERVER_URL = `${window.location.protocol}//${window.location.hostname}:7777`;

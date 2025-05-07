@@ -3,6 +3,8 @@ import heic2any from 'heic2any';
 import './Settings.css';
 import Navbar from './layout/Navbar';
 
+const serverURL = `${window.location.protocol}//${window.location.hostname}:7777`;
+
 function Settings({ user }) {
     const [firstName, setFirstName] = useState('First Name');
     const [lastName, setLastName] = useState('Last Name');
@@ -15,7 +17,7 @@ function Settings({ user }) {
     useEffect(() => {
         if (user && user.id) {
             console.log('Loading profile picture for user:', user.id);
-            fetch(`http://192.168.7.82:7777/api/user/${user.id}/profile-picture`)
+            fetch(`${serverURL}/api/user/${user.id}/profile-picture`)
                 .then(res => res.ok ? res.blob() : null)
                 .then(blob => {
                     if (blob) {
