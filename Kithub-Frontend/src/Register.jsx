@@ -31,7 +31,7 @@ export default function Register() {
             user_password: password,
         };
 
-        fetch("http://localhost:7777/api/register", {
+        fetch("http://192.168.7.82:7777/api/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

@@ -79,6 +79,7 @@ def get_posts():
     for post_id, author_id, caption, date, comments_count, likes in posts_raw:
         posts.append({
             'id': post_id,
+            'userId': author_id,  # <-- Add this line
             'userName': users.get(int(author_id), "Unknown"),
             'text': caption,
             'createdAt': date.isoformat(),
@@ -86,6 +87,7 @@ def get_posts():
             'likes': likes,
             'image': f'/image/{post_id}'
         })
+
 
     conn.close()
     return jsonify(posts)
@@ -298,7 +300,7 @@ def upload_profile_picture(user_id):
     finally:
         conn.close()
 
-    return jsonify({'message': 'Profile picture updated'}), 200
+    return jprsonify({'message': 'Profile picture updated'}), 200
 
 
 

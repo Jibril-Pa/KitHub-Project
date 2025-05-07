@@ -4,10 +4,9 @@ import './Home.css';
 import Navbar from '/src/layout/Navbar';
 import CreatePost from './Createpost';
 
-const SERVER_URL = 'http://172.19.213.126:7777';
+const SERVER_URL = 'http://192.168.7.82:7777';
 
-const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
-    console.log("Current logged-in user:", user);
+const Home = ({ setIsLoggedIn, user, isLoggedIn }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,33 +16,33 @@ const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
 
     const toggleComments = (postId) => {
         setCollapsedComments((prev) => ({
-          ...prev,
-          [postId]: !prev[postId],
+            ...prev,
+            [postId]: !prev[postId],
         }));
-      };
+    };
+
     useEffect(() => {
         document.title = "KitHub | Home";
 
         const fetchPosts = async () => {
             const userId = localStorage.getItem('userId');
-
-            if (!userId) {
-                setError('User not logged in.');
-                setLoading(false);
-                return;
-            }
+            console.log("Loaded userId from localStorage:", userId);
 
             try {
+                // Optional: If you want to fetch only that user's posts
+                // const response = await fetch(`${SERVER_URL}/api/posts?user_id=${userId}`);
+
+                // If you want all posts regardless of login:
                 const response = await fetch(`${SERVER_URL}/api/posts`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 setPosts(data);
 
                 const collapsedMap = {};
-            data.forEach((post) => {
-                collapsedMap[post.id] = true;
-            });
-            setCollapsedComments(collapsedMap);
+                data.forEach((post) => {
+                    collapsedMap[post.id] = true;
+                });
+                setCollapsedComments(collapsedMap);
             } catch (error) {
                 console.error('Error fetching posts:', error);
                 setError('Failed to load posts.');
@@ -120,7 +119,7 @@ const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
                 return;
             }
 
-            formData.append("user_id", userId); // ✅ Append user_id to the form data
+            formData.append("user_id", userId);
 
             const response = await fetch(`${SERVER_URL}/api/posts`, {
                 method: 'POST',
@@ -168,92 +167,85 @@ const Home = ({ setIsLoggedIn,user, isLoggedIn }) => {
                         <div className="loading">Loading posts...</div>
                     ) : error ? (
                         <div className="error">{error}</div>
+                    ) : posts.length === 0 ? (
+                        <div className="no-posts">No posts found.</div>
                     ) : (
-                        posts.map((post) => {
-                            console.log('Post:', post);
-                            console.log('Rendering post by userId:', post.userId);
-                            return (
-                                <div key={post.id} className="post-card">
-                                    <div className="post-header">
-                                        <div className="user-info">
-                                            <img className="user-icon"
-                                                src={`http://172.19.213.126:7777/api/user/14/profile-picture`}
-                                                alt="user profile picture"
-                                            />
-                                            <div>
-                                                <div className="username">{post.userName}</div>
-                                                <div className="timestamp">
-                                                    {new Date(post.createdAt).toLocaleDateString('en-US', {
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric',
-                                                    })}
-                                                </div>
+                        posts.map((post) => (
+                            <div key={post.id} className="post-card">
+                                <div className="post-header">
+                                    <div className="user-info">
+                                        <img
+                                            className="user-icon"
+                                            src={`${SERVER_URL}/api/user/${post.userId}/profile-picture`}
+                                            alt="user profile picture"
+                                            onError={(e) => { e.target.src = '/default-profile.png'; }}
+                                        />
+                                        <div>
+                                            <div className="username">{post.userName}</div>
+                                            <div className="timestamp">
+                                                {new Date(post.createdAt).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                })}
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div className="post-image">
-                                        {post.image && (
-                                            <img src={`${SERVER_URL}${post.image}`} alt="Post" />
-                                        )}
-                                    </div>
+                                <div className="post-image">
+                                    {post.image && (
+                                        <img src={`${SERVER_URL}${post.image}`} alt="Post" />
+                                    )}
+                                </div>
 
-                                    <div className="post-text">{post.text}</div>
+                                <div className="post-text">{post.text}</div>
 
-                                    <div className="post-actions">
-                                        <button className="like-button" onClick={() => handleLike(post.id)}>
-                                            Likes {post.likes ?? 0}
+                                <div className="post-actions">
+                                    <button className="like-button" onClick={() => handleLike(post.id)}>
+                                        Likes {post.likes ?? 0}
+                                    </button>
+                                    <button className="comment-button" onClick={() => toggleComments(post.id)}>
+                                        {collapsedComments[post.id] ? 'Show Comments' : 'Hide Comments'}
+                                    </button>
+                                    {post.userName === user?.username && (
+                                        <button className="delete-button" onClick={() => handleDeletePost(post.id)}>
+                                            Delete
                                         </button>
-                                        <button
-                                                className="comment-button"
-                                                onClick={() => toggleComments(post.id)}
-                                                >
-                                                {collapsedComments[post.id] ? 'Show Comments' : 'Hide Comments'}
-                                                </button>
-                                                {post.userName === user?.username && (
-                                                    <button className="delete-button" onClick={() => handleDeletePost(post.id)}>
-                                                        Delete
-                                                    </button>
-                                                    )}
-                                    </div>
+                                    )}
+                                </div>
 
-                                    {!collapsedComments[post.id] && (
-                                            <div className="comments-section">
-                                                <div className="existing-comments">
-                                                {(post.comments ?? []).map((comment) => (
-                                                    <div key={comment.id} className="comment">
+                                {!collapsedComments[post.id] && (
+                                    <div className="comments-section">
+                                        <div className="existing-comments">
+                                            {(post.comments ?? []).map((comment) => (
+                                                <div key={comment.id} className="comment">
                                                     <strong>{comment.userName}:</strong> {comment.text}
-                                                    </div>
-                                                ))}
                                                 </div>
-                                                <div className="add-comment">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Add a comment..."
-                                                    value={commentInputs[post.id] || ""}
-                                                    onChange={(e) => handleCommentChange(post.id, e.target.value)}
-                                                    onKeyDown={(e) => {
+                                            ))}
+                                        </div>
+                                        <div className="add-comment">
+                                            <input
+                                                type="text"
+                                                placeholder="Add a comment..."
+                                                value={commentInputs[post.id] || ""}
+                                                onChange={(e) => handleCommentChange(post.id, e.target.value)}
+                                                onKeyDown={(e) => {
                                                     if (e.key === "Enter") {
                                                         handleAddComment(post.id);
                                                     }
-                                                    }}
-                                                />
-                                                </div>
-                                            </div>
-                                            )}
-
-
-
-                                </div>
-                            );
-                        })
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))
                     )}
                 </div>
             </div>
         </>
     );
-
 };
 
 export default Home;

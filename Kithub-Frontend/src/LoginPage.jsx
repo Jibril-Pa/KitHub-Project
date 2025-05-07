@@ -18,7 +18,7 @@ export default function LoginPage({ setIsLoggedIn, setUser, isLoggedIn }) {
     setError('');
 
     try {
-      const response = await fetch('http://172.19.213.126:7777/api/login', {
+      const response = await fetch('http://192.168.7.82:7777/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_name: userName, user_password: password }),
@@ -28,15 +28,18 @@ export default function LoginPage({ setIsLoggedIn, setUser, isLoggedIn }) {
       console.log("Login response:", data);
 
       if (data.success) {
-        // ✅ CORRECTED: Set full user object including id
         const user = {
           id: data.userId,
           username: data.username,
         };
 
-        // ✅ Save to localStorage and state
+        // ✅ Save to localStorage so other components can access it
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('userId', user.id);         // needed by Home.js
+        localStorage.setItem('username', user.username); // optional but helpful
+
+        // ✅ Update app state
         setIsLoggedIn(true);
         setUser(user);
         navigate('/home');

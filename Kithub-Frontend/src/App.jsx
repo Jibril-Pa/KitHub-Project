@@ -23,6 +23,16 @@ export default function App() {
       setUser(null);
     }
   }, []);
+  
+  useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem('user'));
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (isLoggedIn && savedUser) {
+      setUser(savedUser);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
 
   return (
     <Routes>
